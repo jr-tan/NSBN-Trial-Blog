@@ -1,19 +1,21 @@
-// Import the framework and instantiate it
-import Fastify from 'fastify'
 
-const fastify = Fastify({
+
+const fastify = require('fastify')({
     logger: true
 })
 
-// Declare a route
-fastify.get('/', async function handler(request, reply) {
-    return { hello: 'world' }
-})
+//links to external js routing file
+fastify.register(require('./routes/main'), { prefix: '/site' });
+
 
 // Run the server!
-try {
-    await fastify.listen({ port: 3000 })
-} catch (err) {
-    fastify.log.error(err)
-    process.exit(1)
+const startServer = async() => {
+    try {
+        await fastify.listen({ port: 3000 })
+    } catch (err) {
+        fastify.log.error(err)
+        process.exit(1)
+    }
 }
+
+startServer();
