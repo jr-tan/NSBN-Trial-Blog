@@ -1,17 +1,25 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <h1> {{ title }} {{phone.voicemail}} </h1>
+  <p>{{weather.datetime}} {{weather.timezone}}</p>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
 
 export default {
   name: 'App',
-  components: {
-    HelloWorld
-  }
-}
+  data() {
+    return {
+      title : 'My app',
+      phone : {ring : 'ring', voicemail : 'go voice mail bye'},
+      weather : {}
+    }
+  },
+mounted(){
+    fetch('http://worldtimeapi.org/api/timezone/Singapore')
+      .then( res => res.json())
+      .then(data => this.weather = data)
+      .catch(err => console.log(err.message))
+}}
 </script>
 
 <style>
