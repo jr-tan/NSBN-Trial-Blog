@@ -34,6 +34,21 @@ const routes = [
     path: '/admin/dashboard',
     name: 'admindashboard',
     component: () => import(/* webpackChunkName: "about" */ '../views/admin/DashboardView.vue')
+  },
+  {
+    path: '/indpost/:id',
+    name: 'indpost',
+    component: () => import(/* webpackChunkName: "about" */ '../views/IndividualPostView.vue')
+  },
+  {
+    path: '/create',
+    name: 'createpost',
+    component: () => import(/* webpackChunkName: "about" */ '../views/CreatePost.vue')
+  },
+  {
+    path: '/editpost/:id',
+    name: 'editpost',
+    component: () => import(/* webpackChunkName: "about" */ '../views/EditPost.vue')
   }
 ]
 

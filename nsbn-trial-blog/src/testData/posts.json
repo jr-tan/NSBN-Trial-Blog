@@ -8,8 +8,8 @@
     },
     {   
         "id" : 2,
-        "title": "title2",
-        "description": "description",
+        "title": "title 2",
+        "description": "mice test",
         "userPosted": "user1",
         "datePosted": "25/11/2023"
     }

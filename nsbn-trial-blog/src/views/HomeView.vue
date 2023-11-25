@@ -23,8 +23,10 @@
                               -webkit-line-clamp: 2; 
                               -webkit-box-orient: vertical;">{{item.description}}</p>
                       <p>
-                          <a class="float-right btn btn-outline-primary ml-2" href="/"> <i
+                          <router-link :to="{name: 'indpost',params: { id:item.id}}">
+                          <a class="float-right btn btn-outline-primary ml-2"> <i
                                   class="fa fa-angle-right"></i> More</a>
+                          </router-link>
                       </p>
                   </div>
               </div>
