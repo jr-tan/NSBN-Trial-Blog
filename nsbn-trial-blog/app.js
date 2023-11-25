@@ -5,7 +5,7 @@ const fastify = require('fastify')({
 })
 
 //links to external js routing file
-fastify.register(require('./routes/main'), { prefix: '/site' });
+fastify.register(require('../backend/models/routes/main'), { prefix: '/site' });
 
 
 // Run the server!
