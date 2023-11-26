@@ -1,5 +1,5 @@
 {
-    "watch" : ["."],
-    "execute" : "node app.js",
+    "watch" : ["../backend/"],
+    "execute" : "node backend/backend.js",
     "ext" : "js"
 }

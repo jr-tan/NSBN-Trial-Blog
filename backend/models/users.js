@@ -4,14 +4,14 @@ const sequelize = require('../config/DBConfig');
 const db = require('../config/DBConfig'); */
 
 const Users = db.define('users', {
-    username: {
-        type: Sequelize.STRING,
+    userid: {
+        type: Sequelize.INTEGER,
         primaryKey: true
     },
-    bio: {
-        type: Sequelize.STRING
+    publicusername: {
+        type: Sequelize.STRING,
     },
-    name: {
+    userbio: {
         type: Sequelize.STRING
     },
     email: {
