@@ -33,7 +33,9 @@ const descriptionInput = ref('');
     const Submitform = () => {
         console.log(titleInput.value)
         axios.post('http://localhost:8080/api/createpost', {title:titleInput.value, description:descriptionInput.value})
-        .then(response => console.log(response))
+        .then((response) => {
+        console.log(response)
+        alert('post created')})
         .catch(error => console.log(error))
     }
 

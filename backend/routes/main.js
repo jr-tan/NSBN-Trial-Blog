@@ -59,14 +59,15 @@ async function routes(fastify, options) {
     fastify.post('/updatePost', async function handler(request, reply) {
         const newPost = request.body;
         const test = newPost.title;
+        const description = newPost.description;
         const { idp } = request.query
-        console.log(test);
+        console.log(description);
 
         priorupdatePost = Posts.findOne({where: {postid: idp}})
 
         Posts.update({
             title: test,
-            description: "test updated",
+            description: description,
             userPosted: "test",
             views: priorupdatePost.views,
             ratings: priorupdatePost.ratings,

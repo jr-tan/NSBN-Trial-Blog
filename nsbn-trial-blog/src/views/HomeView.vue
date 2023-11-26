@@ -37,22 +37,14 @@
 </template>
 
 
-<script>
+<script setup>
 import NavbarVue from '../components/HeaderNFooter/navbar.vue'
 import axios from "axios"
 import {ref} from 'vue'
-export default {
-  name: 'App',
-    components:{
-    NavbarVue}
-  ,
-  setup(){
   const posts = ref(null)
 
   axios.get('http://localhost:8080/api/getpost')
     .then((response) => (posts.value = response.data))
 
 
-  return {posts}
-}}
 </script>

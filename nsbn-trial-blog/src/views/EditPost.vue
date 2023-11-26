@@ -1,12 +1,12 @@
 <template>
     <div class="container">
 
-            <form method="post">
+            <form @submit.prevent="Submitform">
                 <div asp-validation-summary="All" class="text-danger"></div>
 
                 <div class="form-group">
                     <label for="name">Tile</label>
-                    <input type="text" class="form-control" v-model = "ttileInput" required>
+                    <input type="text" class="form-control" v-model = "titleInput" required>
                 </div>
 
                 <div class="form-group">
@@ -23,20 +23,34 @@
         </div>
 </template>
 
-<script>
-import icheated from '../testData/posts.json'
-export default {
-    data(){
-        return{
-            id : this.$route.params.id,
-            posts : icheated,
-            titleInput : '',
-            descriptionInput : ''
-        }
-    },
-    beforeMount(){
-        this.titleInput = this.posts[this.id-1].title
-        this.descriptionInput = this.posts[this.id-1].description
-    }
+<script setup>
+
+import {ref} from 'vue';
+import axios from "axios";
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
+
+const posts = ref(null)
+const id = ref(route.params.id)
+
+let requestlink = ref('http://localhost:8080/api/getpost?idp='+id.value)
+    axios.get(requestlink.value)
+.then((response) => {
+    posts.value = response.data
+    titleInput.value = posts.value[0].title
+    descriptionInput.value = posts.value[0].description
+    })
+
+const titleInput = ref('');
+const descriptionInput = ref('');
+const Submitform = () => {
+        axios.post('http://localhost:8080/api/updatePost?idp='+id.value, {title:titleInput.value, description:descriptionInput.value})
+        .then((response) => {
+        console.log(response)
+        alert('post has beeen successfully edited')
+        })
+        .catch(error => console.log(error))    
 }
+
 </script>
