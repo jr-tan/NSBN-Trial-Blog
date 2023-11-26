@@ -10,26 +10,31 @@
 
 <script>
 import axios from "axios"
+import {ref} from 'vue'
+import { useRoute } from 'vue-router'
+
 export default {
-    data(){
-        return{
-            id : this.$route.params.id,
-            posts : null,
-            title: '',
-            userPosted: '',
-            description: '',
-            datePosted: ''
-        }
-    },
-    mounted(){
-    var requestlink = 'http://localhost:8080/api/getpost?idp='+this.id
-    axios
-      .get(requestlink)
-      .then((response) => {this.posts = response.data[0]
-      this.title=response.data[0].title
-      this.userPosted = response.data[0].userPosted
-      this.description = response.data[0].description
-      this.datePosted = response.data[0].datePosted})
-      
+setup(){
+    const route = useRoute()
+    
+    const title = ref(null)
+    const userPosted=ref(null)
+    const description = ref(null)
+    const datePosted = ref(null)
+
+    const id = ref(route.params.id)
+    const posts = ref(null)
+    let requestlink = ref('http://localhost:8080/api/getpost?idp='+id.value)
+     axios.get(requestlink.value)
+    .then((response) => {
+        posts.value = response.data
+        title.value = posts.value[0].title
+        userPosted.value = posts.value[0].userPosted
+        description.value = posts.value[0].description
+        datePosted.value = posts.value[0].datePosted
+        })
+    
+    return{title, userPosted, description, datePosted}
+
 }}
 </script>

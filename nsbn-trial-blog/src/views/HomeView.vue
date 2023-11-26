@@ -40,45 +40,19 @@
 <script>
 import NavbarVue from '../components/HeaderNFooter/navbar.vue'
 import axios from "axios"
+import {ref} from 'vue'
 export default {
   name: 'App',
-  components:{
-    NavbarVue
-  },
-  data() {
-    return {
-      posts : {}
-    }
-  },
-mounted(){
-    axios
-      .get('http://localhost:8080/api/getpost')
-      .then((response) => (this.posts = response.data))
+    components:{
+    NavbarVue}
+  ,
+  setup(){
+  const posts = ref(null)
+
+  axios.get('http://localhost:8080/api/getpost')
+    .then((response) => (posts.value = response.data))
+
+
+  return {posts}
 }}
 </script>
-
-<style>
-#app {
-  font-family: Lato;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
-
-nav {
-  padding: 30px;
-}
-
-nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-nav a.router-link-exact-active {
-  color: #42b983;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>
