@@ -1,0 +1,16 @@
+[
+    {
+        "id" : 1,
+        "title": "title",
+        "description": "description",
+        "userPosted": "user1",
+        "datePosted": "25/11/2023"
+    },
+    {   
+        "id" : 2,
+        "title": "title 2",
+        "description": "mice test",
+        "userPosted": "user1",
+        "datePosted": "25/11/2023"
+    }
+]

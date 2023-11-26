@@ -4,7 +4,7 @@ const db = require('../config/DBConfig');
 
 const Posts = db.define('posts', {
     postid: {
-        type: Sequelize.STRING,
+        type: Sequelize.INTEGER,
         primaryKey: true
     },
     title: {

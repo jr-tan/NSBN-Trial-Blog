@@ -10,7 +10,7 @@ DB.setUpDB(false);
 
 
 //links to external js routing file
-fastify.register(require('../backend/routes/main'), { prefix: '/site' });
+fastify.register(require('../backend/routes/main'), { prefix: '/api' });
 //above pathing is a bit weird, will fix if have time
 
 
