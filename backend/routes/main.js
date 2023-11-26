@@ -32,10 +32,11 @@ async function routes(fastify, options) {
     fastify.post('/createpost', async function handler(request, reply){
         const newPost = request.body;
         const test = newPost.title;
+        const description = newPost.description;
         console.log(test);
         Posts.create({
             title:test,
-            description:"test",
+            description:description,
             userPosted:"test",
             views:0,
             ratings:0,
