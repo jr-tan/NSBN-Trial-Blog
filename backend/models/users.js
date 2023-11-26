@@ -1,7 +1,6 @@
-/* Untested
 const Sequelize = require('sequelize');
 const sequelize = require('../config/DBConfig');
-const db = require('../config/DBConfig'); */
+const db = require('../config/DBConfig'); 
 
 const Users = db.define('users', {
     userid: {
@@ -38,4 +37,4 @@ User :
  • user role
  */
 
-module.exports = Posts;
+module.exports = Users;
