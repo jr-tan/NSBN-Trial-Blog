@@ -1,21 +1,35 @@
 <template>
-    <h1>{{posts[id-1].title}}</h1>
-    <i>{{posts[id-1].userPosted}}</i>
+<h1>{{title}}</h1>
+    <i>{{userPosted}}</i>
     <br>
-    <p>{{posts[id-1].description}}</p>
+    <p>{{description}}</p>
     <br>
-    <p>{{posts[id-1].datePosted}}</p>
+    <p>{{datePosted}}</p>
 
 </template>
 
 <script>
-import icheated from '../testData/posts.json'
+import axios from "axios"
 export default {
     data(){
         return{
             id : this.$route.params.id,
-            posts : icheated
+            posts : null,
+            title: '',
+            userPosted: '',
+            description: '',
+            datePosted: ''
         }
-    }
-}
+    },
+    mounted(){
+    var requestlink = 'http://localhost:8080/api/getpost?idp='+this.id
+    axios
+      .get(requestlink)
+      .then((response) => {this.posts = response.data[0]
+      this.title=response.data[0].title
+      this.userPosted = response.data[0].userPosted
+      this.description = response.data[0].description
+      this.datePosted = response.data[0].datePosted})
+      
+}}
 </script>

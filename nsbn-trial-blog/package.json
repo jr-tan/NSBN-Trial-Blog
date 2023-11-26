@@ -11,6 +11,7 @@
   },
   "main": "../backend/backend.js",
   "dependencies": {
+    "axios": "^1.6.2",
     "concurrently": "^8.2.2",
     "core-js": "^3.8.3",
     "fastify": "^4.24.3",

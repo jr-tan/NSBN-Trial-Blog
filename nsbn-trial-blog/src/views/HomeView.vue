@@ -23,7 +23,7 @@
                               -webkit-line-clamp: 2; 
                               -webkit-box-orient: vertical;">{{item.description}}</p>
                       <p>
-                          <router-link :to="{name: 'indpost',params: { id:item.id}}">
+                          <router-link :to="{name: 'indpost',params: { id:item.postid}}">
                           <a class="float-right btn btn-outline-primary ml-2"> <i
                                   class="fa fa-angle-right"></i> More</a>
                           </router-link>
@@ -39,7 +39,7 @@
 
 <script>
 import NavbarVue from '../components/HeaderNFooter/navbar.vue'
-import icheated from '../testData/posts.json'
+import axios from "axios"
 export default {
   name: 'App',
   components:{
@@ -47,17 +47,13 @@ export default {
   },
   data() {
     return {
-      title : 'My app',
-      phone : {ring : 'ring', voicemail : 'go voice mail bye'},
-      weather : {},
-      posts : icheated
+      posts : {}
     }
   },
 mounted(){
-    fetch('http://worldtimeapi.org/api/timezone/Singapore')
-      .then( res => res.json())
-      .then(data => this.weather = data)
-      .catch(err => console.log(err.message))
+    axios
+      .get('http://localhost:8080/api/getpost')
+      .then((response) => (this.posts = response.data))
 }}
 </script>
 
