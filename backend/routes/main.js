@@ -113,7 +113,6 @@ async function routes(fastify, options) {
         const topinputtocheck = Usertocheck.topinput;
         const passwordinput = Usertocheck.passwordinput;
         const allow = false;
-
         const dbusertocheck = await Users.findOne({ where: { publicusername: topinputtocheck } })
         if (dbusertocheck){
             bcrypt.genSalt(10, (err, salt) => {
@@ -126,15 +125,17 @@ async function routes(fastify, options) {
             if (comapre == true){
                 const payload = { user_id: topinputtocheck };
                 const token = jwt.sign({ payload }, 'fsesbn');
-                return token;
+                return { outcome: 'success', value: token }
             }
             else{
                 //wrong passqword
-                return "wrong password";
+                console.log('a')
+                return {outcome : 'wrong password', value : ''}
             }
         }
         else{
             //nothing
+            return { outcome: 'wrong username', value: '' }
         }
     })
 
