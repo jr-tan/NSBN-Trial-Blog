@@ -67,34 +67,70 @@ async function routes(fastify, options) {
 
     fastify.post('/createuser', async function handler(request, reply) {
         const newUser = request.body;
-        const username = newUser.username;
+        const usernameI = newUser.username;
         const bio = newUser.bio;
-        const name = newUser.name;
         const emailinput = newUser.email;
         const unhashedpw = newUser.password;
-        var userexists = '';
-       Users.count({ where: { email: emailinput } })
-            .then(count => {
-                if (count != 0) {
-                    userexists = false;
-                }
-                userexists = true;})
-        console.log(userexists)
-        if (userexists == false){
+        console.log(usernameI);
+        const findIfExists = await Users.findOne({where: {publicusername : usernameI}})
+        if (findIfExists){
+            console.log("not create");
+            return "username existed"
+        }
+        else{
+          const findEmailExists = await Users.findOne({where: {email : emailinput}})
+          if (findEmailExists){
+             return "email existed";
+          }
+          else{
+              bcrypt.genSalt(10, (err, salt) => {
+                  bcrypt.hash(unhashedpw, salt, (err, hash) => {
+                      if (err) throw err;
+                      const hashedpw = hash;
+                      Users.create({
+                          publicusername: usernameI,
+                          userbio: bio,
+                          email: emailinput,
+                          password: hashedpw,
+                          role: 'user'
+                      });
+                  });
+              });
+          }
+        }
+
+
+       /* if (userexists == false){
+            
+            });
+        }*/
+    })
+
+    fastify.post('/login', async function handler(request, reply) {
+        const Usertocheck = request.body;
+        const topinputtocheck = Usertocheck.topinput;
+        const passwordinput = Usertocheck.passwordinput;
+        const allow = false;
+
+        const dbusertocheck = await Users.findOne({ where: { publicusername: topinputtocheck } })
+        if (dbusertocheck){
             bcrypt.genSalt(10, (err, salt) => {
-                bcrypt.hash(unhashedpw, salt, (err, hash) => {
+                bcrypt.hash(passwordinput, salt, (err, hash) => {
                     if (err) throw err;
                     const hashedpw = hash;
-                    console.log(hashedpw)
-                    Users.create({
-                        publicusername:username,
-                        userbio:bio,
-                        email:emailinput,
-                        password:hashedpw,
-                        role:'user'
-                    })
                 });
             });
+            const comapre = await bcrypt.compare(passwordinput, dbusertocheck.password)
+            if (comapre == true){
+                return "success";
+            }
+            else{
+                //wrong passqword
+                return "wrong password";
+            }
+        }
+        else{
+            //nothing
         }
     })
 }
