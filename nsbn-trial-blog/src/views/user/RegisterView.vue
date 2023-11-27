@@ -39,15 +39,21 @@
 <script setup>
 
 import {ref} from 'vue';
+import axios from "axios";
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 	const ErrorforPassword = ref('');
 	const passwordInput = ref('');
 	const finalisepasswordInput = ref('');
+	const usernameInput = ref('');
+	const descriptionInput = ref('');
+	const emailInput = ref('');
 	
 const Submitform = () => {
 
-	var readytoSubmit = false
-
+	let readytoSubmit = false
 	console.log(passwordInput.value)
 	// regex validation for password
 	const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,10}$/;
@@ -68,6 +74,9 @@ const Submitform = () => {
 	if (readytoSubmit == true){
 	console.log(readytoSubmit)
 	console.log('form will be submiited')
+
+	axios.post('http://localhost:8080/api/createuser', {username:usernameInput.value, userbio:descriptionInput.value, email:emailInput.value, password:passwordInput.value})
+	.then(router.push({name: 'login'}))
 	}}
 
 </script>

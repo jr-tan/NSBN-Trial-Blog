@@ -2,6 +2,8 @@ const Posts = require('../models/posts')
 const Users = require('../models/users')
 const sequelize = require('../config/DBConfig');
 const bcrypt = require('bcryptjs');
+const jwt = require("jsonwebtoken")
+require("dotenv").config();
 
 async function routes(fastify, options) {
     fastify.get('/test/:id', async function handler(request, reply) {
@@ -122,7 +124,9 @@ async function routes(fastify, options) {
             });
             const comapre = await bcrypt.compare(passwordinput, dbusertocheck.password)
             if (comapre == true){
-                return "success";
+                const payload = { user_id: topinputtocheck };
+                const token = jwt.sign({ payload }, 'fsesbn');
+                return token;
             }
             else{
                 //wrong passqword
@@ -131,6 +135,19 @@ async function routes(fastify, options) {
         }
         else{
             //nothing
+        }
+    })
+
+    fastify.get('/getprofileinfo', async function handler(request, reply) {
+        try {
+            const token = request.headers.authorization.split(" ")[1];
+            const { payload } = jwt.verify(token, 'fsesbn');
+            console.log(payload)
+            const singleuser = await Users.findOne({ where: { publicusername: payload.user_id } });
+            console.log(singleuser)
+            reply.send({ singleuser }).status(200);
+        } catch (error) {
+            reply.status(401).send("unAuthorized");
         }
     })
 }
