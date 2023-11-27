@@ -10,16 +10,15 @@
 
 <script>
 
-import icheated from './testData/posts.json'
+//import icheated from './testData/posts.json'
 export default {
   name: 'App',
   
   data() {
     return {
       title : 'My app',
-      phone : {ring : 'ring', voicemail : 'go voice mail bye'},
       weather : {},
-      posts : icheated
+      //posts : icheated
     }
   },
 mounted(){

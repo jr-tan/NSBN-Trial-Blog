@@ -1,27 +1,9 @@
 const Posts = require('../models/posts')
 const Users = require('../models/users')
 const sequelize = require('../config/DBConfig');
+const bcrypt = require('bcryptjs');
 
 async function routes(fastify, options) {
-    fastify.get('/', async function handler(request, reply) {
-        return {balls:'partty'}
-    })
-
-    fastify.get('/test', async function handler(request, reply) {
-        const fs = require ('fs');
-        const postjson = fs.readFileSync(__dirname+'/testData_toremove/posts.json')
-        const psotsend = JSON.parse(postjson);
-
-        // https://www.youtube.com/watch?v=k4FG29N8wg8 (16:00)
-        //param
-
-        const {paramid} = request.query
-        if (!paramid) return psotsend
-
-        const paramedposts = psotsend.filter((psotsend) => psotsend.id == paramid)
-        return paramedposts
-    })
-
     fastify.get('/test/:id', async function handler(request, reply) {
         const fs = require('fs');
         const postjson = fs.readFileSync(__dirname + '/testData_toremove/posts.json')
@@ -90,18 +72,20 @@ async function routes(fastify, options) {
         const name = newUser.name;
         const emailinput = newUser.email;
         const unhashedpw = newUser.password;
-        const userexists = Users.count({ where: { email: emailinput } })
+        var userexists = '';
+       Users.count({ where: { email: emailinput } })
             .then(count => {
                 if (count != 0) {
-                    return false;
+                    userexists = false;
                 }
-                return true;})
-
+                userexists = true;})
+        console.log(userexists)
         if (userexists == false){
             bcrypt.genSalt(10, (err, salt) => {
                 bcrypt.hash(unhashedpw, salt, (err, hash) => {
                     if (err) throw err;
                     const hashedpw = hash;
+                    console.log(hashedpw)
                     Users.create({
                         publicusername:username,
                         userbio:bio,
