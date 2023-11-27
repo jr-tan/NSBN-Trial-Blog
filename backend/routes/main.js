@@ -1,4 +1,5 @@
 const Posts = require('../models/posts')
+const Users = require('../models/users')
 const sequelize = require('../config/DBConfig');
 
 async function routes(fastify, options) {
@@ -80,6 +81,37 @@ async function routes(fastify, options) {
     fastify.post('/deletePost', async function handler(request, reply) {
         const { idp } = request.query
         Posts.destroy({where: {postid: idp}})
+    })
+
+    fastify.post('/createuser', async function handler(request, reply) {
+        const newUser = request.body;
+        const username = newUser.username;
+        const bio = newUser.bio;
+        const name = newUser.name;
+        const emailinput = newUser.email;
+        const unhashedpw = newUser.password;
+        const userexists = Users.count({ where: { email: emailinput } })
+            .then(count => {
+                if (count != 0) {
+                    return false;
+                }
+                return true;})
+
+        if (userexists == false){
+            bcrypt.genSalt(10, (err, salt) => {
+                bcrypt.hash(unhashedpw, salt, (err, hash) => {
+                    if (err) throw err;
+                    const hashedpw = hash;
+                    Users.create({
+                        publicusername:username,
+                        userbio:bio,
+                        email:emailinput,
+                        password:hashedpw,
+                        role:'user'
+                    })
+                });
+            });
+        }
     })
 }
 
