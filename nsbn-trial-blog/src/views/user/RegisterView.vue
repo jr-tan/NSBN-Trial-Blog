@@ -36,44 +36,38 @@
 </div>
 </template>
 
-<script>
+<script setup>
 
-export default {
-    data(){
-    return {
-        usernameInput : '',
-        bioInput : '',
-        nameInput : '',
-        emailInput : '',
-		passwordInput : '',
-        finalisepasswordInput : '',
-		ErrorforPassword : ''
-    }},
-	methods : {
-		Submitform() {
-			var readytoSubmit = false
+import {ref} from 'vue';
 
-			// regex validation for password
-			const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,10}$/;
-			//8-10 chars, at least 1 uppercase, 1 lowecase, 1 number, 1 special character
-			const checkmatches = regex.test(this.passwordInput)
-			this.ErrorforPassword = checkmatches != false ? '': 'Password must meet the following : 8-10 chars, at least 1 uppercase, 1 lowecase, 1 number, 1 special character'
+	const ErrorforPassword = ref('');
+	const passwordInput = ref('');
+	const finalisepasswordInput = ref('');
+	
+const Submitform = () => {
 
-			//checking if password input matches
-			if (this.passwordInput == this.finalisepasswordInput){
-				readytoSubmit = true
-				if (this.ErrorforPassword == 'Password must meet the following : 8-10 chars, at least 1 uppercase, 1 lowecase, 1 number, 1 special character'){
-					readytoSubmit = false
-				}
-			}else{
-				this.ErrorforPassword = "Password does not match.";
-			}
+	var readytoSubmit = false
 
-			if (readytoSubmit == true){
-			console.log(readytoSubmit)
-			console.log('form will be submiited')
-			}
+	console.log(passwordInput.value)
+	// regex validation for password
+	const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,10}$/;
+	//8-10 chars, at least 1 uppercase, 1 lowecase, 1 number, 1 special character
+	const checkmatches = regex.test(passwordInput.value)
+	ErrorforPassword.value = checkmatches != false ? '': 'Password must meet the following : 8-10 chars, at least 1 uppercase, 1 lowecase, 1 number, 1 special character'
+
+	//checking if password input matches
+	if (passwordInput.value == finalisepasswordInput.value){
+		readytoSubmit = true
+		if (ErrorforPassword.value == 'Password must meet the following : 8-10 chars, at least 1 uppercase, 1 lowecase, 1 number, 1 special character'){
+			readytoSubmit = false
 		}
+	}else{
+		ErrorforPassword.value = "Password does not match.";
+	}
+
+	if (readytoSubmit == true){
+	console.log(readytoSubmit)
+	console.log('form will be submiited')
 	}}
 
 </script>

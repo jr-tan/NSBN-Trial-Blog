@@ -27,9 +27,10 @@
 
 import {ref} from 'vue';
 import axios from "axios";
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
+const router = useRouter()
 
 const posts = ref(null)
 const id = ref(route.params.id)
@@ -38,8 +39,13 @@ let requestlink = ref('http://localhost:8080/api/getpost?idp='+id.value)
     axios.get(requestlink.value)
 .then((response) => {
     posts.value = response.data
-    titleInput.value = posts.value[0].title
-    descriptionInput.value = posts.value[0].description
+    if (posts.value.length ==  1){
+        titleInput.value = posts.value[0].title
+        descriptionInput.value = posts.value[0].description
+    }
+    else{
+        router.push({name: 'home'});
+    }
     })
 
 const titleInput = ref('');
@@ -49,6 +55,7 @@ const Submitform = () => {
         .then((response) => {
         console.log(response)
         alert('post has beeen successfully edited')
+        router.push({name: 'home'})
         })
         .catch(error => console.log(error))    
 }

@@ -26,7 +26,9 @@
 <script setup>
 import {ref} from 'vue';
 import axios from "axios"
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const titleInput = ref('');
 const descriptionInput = ref('');
 
@@ -35,7 +37,9 @@ const descriptionInput = ref('');
         axios.post('http://localhost:8080/api/createpost', {title:titleInput.value, description:descriptionInput.value})
         .then((response) => {
         console.log(response)
-        alert('post created')})
+        alert('post created')
+        router.push({name: 'home'})
+        })
         .catch(error => console.log(error))
     }
 
