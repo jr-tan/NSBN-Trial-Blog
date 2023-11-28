@@ -1,22 +1,52 @@
 <template>
-<nav class="navbar navbar-light fixed-top" style="background-color: black;">
-  <button type="button" id="sidebarCollapse" class="btn" style="background-color: black; outline: none;">
-    <i class="far fa-bars"></i>
-  </button>
-  <a class="navbar-brand text-light font-weight-bold mr-auto ml-3"> <router-link to="/"> NS SBN Trial Blog </router-link> </a>
-
-  
-  <a class="navbar-brand text-light font-weight-bold ml-3" href=""><router-link to="/register">Register<i
-      class="ml-2 fas fa-sign-out-alt"></i></router-link></a>
-
-  <a class="navbar-brand text-light font-weight-bold ml-3" href=""><router-link to="/login">Login<i
-      class="ml-2 fas fa-sign-out-alt"></i></router-link></a>
+<nav id="nav" class="navbar navbar-expand-sm navbar-dark fixed-top" style="background-color: black;">
+	<div class="container">
+		<a class="navbar-brand"><router-link to ="/" style="color:white">NS SBN Trial Blog</router-link></a>
+		<div class="collapse navbar-collapse" id="navbarNav">
+			<ul class="navbar-nav ml-auto">
+					<li class="nav-item">
+						<a href="/register" class="nav-link" v-if="sessionstatus==1">Register</a>
+						<a href="/create" class="nav-link" v-if="sessionstatus==2">Create Post</a>
+					</li>
+					<li class="nav-item">
+						<a href="/login" class="nav-link" v-if="sessionstatus==1">Login</a>
+						<a @click="logout" class="nav-link" v-if="sessionstatus==2">Log Out</a>
+					</li>
+			</ul>
+		</div>
+	</div>
 </nav>
 </template>
 
-<script>
+<script setup>
+import axios from "axios"
+import {ref} from 'vue'
+import {useRouter } from 'vue-router'
 
-export default {
-  name: 'web-navbar'}
+let sessionstatus = ref(1)
+
+const getuserinfo = ref(null)
+
+const router = new useRouter()
+
+axios.get('http://localhost:8080/api/getprofileinfo')
+    .then((response) => {getuserinfo.value = response.data
+    if (getuserinfo.value.outcome == 'authenticated'){
+      sessionstatus.value = 2;
+    }
+    })
+
+
+const logout = () => {
+	console.log('attempt');
+	axios.post('http://localhost:8080/api/logout')
+    .then(router.push({name : 'home'}))
+}
 
 </script>
+
+<style>
+a{
+  text-decoration:none;
+}
+</style>

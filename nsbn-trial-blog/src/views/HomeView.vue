@@ -2,19 +2,17 @@
 
   <NavbarVue>
 </NavbarVue>
-  <h1 ref="titlechange"> Welcome {{usernameifhave}}! </h1>
+  <h1 ref="titlechange" class="pb-3"> Welcome {{usernameifhave}}! </h1>
   
     <div class="container" v-for="item in posts" v-bind:key="item"> 
-      <div class="card" >
+      <div class="card mb-2" >
           <div class="card-body">
               <div class="row">
                   <div>
                       <h3 class="float-left"><strong><b>{{item.title}}</b></strong></h3>
                       <p>
-                          <span class="float-right"><i class="text-warning fa fa-star"></i></span>
+                          <span class="float-right"><i class="fa fa-eye"></i> {{item.views}} | By {{item.userPosted}}</span>
                       </p>
-                      <i>By {{item.userPosted}}</i>
-                      <br>
                       <p style="   overflow: hidden;
                               text-overflow: ellipsis;
                               display: -webkit-box;
@@ -38,29 +36,31 @@
 
 
 <script setup>
-import NavbarVue from '../components/HeaderNFooter/navbar.vue'
-import axios from "axios"
-import {ref} from 'vue'
-  const posts = ref(null)
-  const getuserinfo = ref(null)
-  const titlechange = ref('')
-  const usernameifhave = ref('')
+  import NavbarVue from '../components/HeaderNFooter/NavBar.vue';
+  import axios from "axios"
+  import {ref} from 'vue'
+  const posts = ref(null);
+  const getuserinfo = ref(null);
+  const titlechange = ref('');
+  const usernameifhave = ref('');
 
+  //gets posts
   axios.get('http://localhost:8080/api/getpost')
-    .then((response) => (posts.value = response.data))
+    .then((response) => (posts.value = response.data));
 
+  //gets information of user logged in, and reflect the user's name accordingly
   axios.get('http://localhost:8080/api/getprofileinfo')
-    .then((response) => {getuserinfo.value = response.data
-    console.log(getuserinfo.value)
-    if (getuserinfo.value.outcome == 'authenticated'){
-      console.log(getuserinfo.value.rolex)
-      if (getuserinfo.value.role == "user"){
-      usernameifhave.value = getuserinfo.value.userid}
-      else{
-      usernameifhave.value = getuserinfo.value.userid + ' (admin)'
+    .then((response) => {
+      getuserinfo.value = response.data
+      //console.log(getuserinfo.value);
+      if (getuserinfo.value.outcome == 'authenticated'){
+        if (getuserinfo.value.role == "user"){
+          usernameifhave.value = getuserinfo.value.userid;}
+        else{
+        usernameifhave.value = getuserinfo.value.userid + ' (admin)';
+        }
       }
-    }
-  })
+  });
 
 
 </script>

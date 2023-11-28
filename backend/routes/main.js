@@ -18,13 +18,14 @@ async function routes(fastify, options) {
     // Add more route handlers as needed
     fastify.post('/createpost', async function handler(request, reply){
         const newPost = request.body;
-        const test = newPost.title;
+        const title = newPost.title;
         const description = newPost.description;
-        console.log(test);
+        const userPosted = newPost.userposted
+        //console.log(title);
         Posts.create({
-            title:test,
+            title: title,
             description:description,
-            userPosted:"test",
+            userPosted: userPosted,
             views:0,
             ratings:0,
             datePosted: sequelize.fn('NOW')
@@ -67,6 +68,22 @@ async function routes(fastify, options) {
     fastify.post('/deletePost', async function handler(request, reply) {
         const { idp } = request.query
         Posts.destroy({where: {postid: idp}})
+    })
+
+    fastify.post('/updateviews', async function handler(request, reply) {
+        const { idp } = request.query
+        posttoget = await Posts.findOne({ where: { postid: idp } })
+        const originalviewcount = posttoget.views
+        Posts.update({ views: originalviewcount + 1 },
+            { where: { postid: idp } })
+    })
+
+    fastify.post('/increaserating', async function handler(request, reply) {
+        const { idp } = request.query
+        posttoget = await Posts.findOne({ where: { postid: idp } })
+        const originalratingcount = posttoget.ratings
+        Posts.update({ ratings: originalratingcount + 1 },
+            { where: { postid: idp } })
     })
 
     fastify.post('/createuser', async function handler(request, reply) {
@@ -193,15 +210,6 @@ async function routes(fastify, options) {
     fastify.get('/getsessioninfo', async function handler(request, reply) {
         return {login: request.session.authenticated, 
         token: request.session.token}
-    })
-
-    fastify.post('/updateviews', async function handler(request, reply) {
-        const { idp } = request.query
-        const posttoget = Posts.findOne({ where: { postid: idp } })
-        const originalviewcount = post.views
-        console.log(originalviewcount);
-        Posts.update({ views:  originalviewcount+1},
-            { where: { postid: idp } })  
     })
 
     //PURELY TESTING PURPOSES

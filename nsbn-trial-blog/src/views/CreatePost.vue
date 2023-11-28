@@ -1,4 +1,7 @@
 <template>
+
+  <NavbarVue>
+</NavbarVue>
     <div class="container">
 
             <form @submit.prevent="Submitform">
@@ -24,26 +27,39 @@
 </template>
 
 <script setup>
-import {ref} from 'vue';
-import axios from "axios"
-import { useRouter } from 'vue-router'
+    import {ref} from 'vue';
+    import axios from "axios"
+    import { useRouter } from 'vue-router'
 
-const router = useRouter()
-const titleInput = ref('');
-const descriptionInput = ref('');
+    const router = useRouter();
+    const titleInput = ref('');
+    const descriptionInput = ref('');
+    const getuserinfo = ref(null);
+    const userposted = ref('');
 
-    const Submitform = () => {
-        console.log(titleInput.value)
-        axios.post('http://localhost:8080/api/createpost', {title:titleInput.value, description:descriptionInput.value})
-        .then((response) => {
-        console.log(response)
-        alert('post created')
-        router.push({name: 'home'})
-        })
-        .catch(error => console.log(error))
-    }
+    axios.get('http://localhost:8080/api/getprofileinfo')
+        .then((response) => {getuserinfo.value = response.data
+        console.log(getuserinfo.value)
+            if (getuserinfo.value.outcome == "authenticated"){
+                userposted.value = getuserinfo.value.userid;
+            }
+            else{
+                router.push({name: 'errorfourothree'})
+            }}
+        )
+        
 
-    
 
-    //https://softauthor.com/vue-js-3-composition-api-reusable-scalable-form-validation/#Bind-Input-Field-Data-To-The-User-Object
+const Submitform = () => {
+    console.log(titleInput.value)
+    axios.post('http://localhost:8080/api/createpost', {title:titleInput.value, description:descriptionInput.value, userposted: userposted.value})
+    .then((response) => {
+    console.log(response)
+    alert('post created')
+    router.push({name: 'home'})
+    })
+    .catch(error => console.log(error))
+}
+
+
 </script>

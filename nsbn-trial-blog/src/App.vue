@@ -10,7 +10,6 @@
 
 <script>
 
-//import icheated from './testData/posts.json'
 export default {
   name: 'App',
   
