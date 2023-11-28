@@ -6,8 +6,9 @@
     <br>
     <p>{{datePosted}}</p>
 
-    <button @click="editPost"> Edit </button>
-    <button @click="deletePost"> Delete </button>
+    <button @click="editPost" id="editbutton"> Edit </button>
+    <button @click="deletePost" id="deletebutton"> Delete </button>
+    <p id="nologin"> Make a account to make your own posts! </p>
 </template>
 
 <script setup>
@@ -22,9 +23,31 @@ const title = ref(null)
 const userPosted=ref(null)
 const description = ref(null)
 const datePosted = ref(null)
+const getuserinfo = ref(null)
 
 const id = ref(route.params.id)
 const posts = ref(null)
+
+    //checks whether to render the delete button
+  axios.get('http://localhost:8080/api/getprofileinfo')
+    .then((response) => {getuserinfo.value = response.data
+    console.log(getuserinfo.value)
+    if (getuserinfo.value.outcome == 'authenticated'){
+      if (getuserinfo.value.role != "admin"){
+        if (userPosted.value != getuserinfo.value.userid){
+            document.getElementById('deletebutton').remove();
+            document.getElementById('editbutton').remove();
+        }
+      }
+         document.getElementById('nologin').remove();
+    }
+    else{
+         document.getElementById('deletebutton').remove();
+            document.getElementById('editbutton').remove();
+    }
+    })
+
+
 let requestlink = ref('http://localhost:8080/api/getpost?idp='+id.value)
     axios.get(requestlink.value)
 .then((response) => {
@@ -36,7 +59,7 @@ let requestlink = ref('http://localhost:8080/api/getpost?idp='+id.value)
     description.value = posts.value[0].description
     datePosted.value = posts.value[0].datePosted}
     else{
-        router.push({name: 'home'});
+        router.push({name: 'errorfourofour'});
     }
     })
 

@@ -2,7 +2,9 @@ const Posts = require('../models/posts')
 const Users = require('../models/users')
 const sequelize = require('../config/DBConfig');
 const bcrypt = require('bcryptjs');
-const jwt = require("jsonwebtoken")
+const jwt = require("jsonwebtoken");
+const fastifySession = require('@fastify/session');
+const fastifyCookie = require('@fastify/cookie');
 require("dotenv").config();
 
 async function routes(fastify, options) {
@@ -125,6 +127,10 @@ async function routes(fastify, options) {
             if (comapre == true){
                 const payload = { user_id: topinputtocheck };
                 const token = jwt.sign({ payload }, 'fsesbn');
+                request.session.authenticated = true
+                request.session.token = token //fallback?
+                request.session.userid = dbusertocheck.publicusername
+                request.session.userrole = dbusertocheck.role
                 return { outcome: 'success', value: token }
             }
             else{
@@ -140,17 +146,74 @@ async function routes(fastify, options) {
     })
 
     fastify.get('/getprofileinfo', async function handler(request, reply) {
+        if (request.session.authenticated) {
+            console.log('logged in')
+            console.log(request.session.userrole)
+            return {outcome: 'authenticated', userid: request.session.userid, role: request.session.userrole}
+        } else {
+            console.log('nth')
+            return {outcome: 'no perms', userid: '', role: ''}
+        }
+
+        /*//double matching??
+        const singleuser = null
         try {
             const token = request.headers.authorization.split(" ")[1];
             const { payload } = jwt.verify(token, 'fsesbn');
             console.log(payload)
-            const singleuser = await Users.findOne({ where: { publicusername: payload.user_id } });
+            singleuser = await Users.findOne({ where: { publicusername: payload.user_id } });
             console.log(singleuser)
-            reply.send({ singleuser }).status(200);
         } catch (error) {
             reply.status(401).send("unAuthorized");
         }
+        if (token == request.session.token){
+            //reasoning - since token can be easily tampered in header session should not be easily tampered and can be cross checked
+            //on hold - think about it later 28/11 0925
+        }
+        else{
+            reply.status(401).send("unAuthorized");
+        }*/
     })
+
+    fastify.get('/logout', async function handler(request, reply) {
+        if (request.session.authenticated) {
+            request.session.destroy((err) => {
+                if (err) {
+                    reply.status(500)
+                    reply.send('Internal Server Error')
+                } else {
+                    reply.redirect('/')
+                }
+            })
+        } else {
+            reply.redirect('/')
+        }
+    });
+
+    fastify.get('/getsessioninfo', async function handler(request, reply) {
+        return {login: request.session.authenticated, 
+        token: request.session.token}
+    })
+
+    //PURELY TESTING PURPOSES
+    fastify.get('/test', async function handler(request, reply) {
+        console.log('hello')
+        console.log('ab' + request.session.token)
+        console.log('cd' + request.session.authenticated)
+        reply.send('hello')
+    })
+
+    fastify.get('/locked', async function handler(request, reply) {
+        console.log('cd' + request.session.authenticated)
+        if (request.session.authenticated != true){
+            reply.send('no perms')
+        }
+        else{
+        console.log('hello')
+        console.log('ab' + request.session.token)
+        reply.send('nice')}
+    })
+
 }
 
 module.exports = routes;

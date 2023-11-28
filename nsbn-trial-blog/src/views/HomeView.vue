@@ -2,7 +2,7 @@
 
   <NavbarVue>
 </NavbarVue>
-  <h1> Welcome! </h1>
+  <h1 ref="titlechange"> Welcome {{usernameifhave}}! </h1>
   
     <div class="container" v-for="item in posts" v-bind:key="item"> 
       <div class="card" >
@@ -42,9 +42,25 @@ import NavbarVue from '../components/HeaderNFooter/navbar.vue'
 import axios from "axios"
 import {ref} from 'vue'
   const posts = ref(null)
+  const getuserinfo = ref(null)
+  const titlechange = ref('')
+  const usernameifhave = ref('')
 
   axios.get('http://localhost:8080/api/getpost')
     .then((response) => (posts.value = response.data))
+
+  axios.get('http://localhost:8080/api/getprofileinfo')
+    .then((response) => {getuserinfo.value = response.data
+    console.log(getuserinfo.value)
+    if (getuserinfo.value.outcome == 'authenticated'){
+      console.log(getuserinfo.value.rolex)
+      if (getuserinfo.value.role == "user"){
+      usernameifhave.value = getuserinfo.value.userid}
+      else{
+      usernameifhave.value = getuserinfo.value.userid + ' (admin)'
+      }
+    }
+  })
 
 
 </script>

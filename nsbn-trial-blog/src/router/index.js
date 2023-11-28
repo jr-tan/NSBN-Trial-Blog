@@ -49,7 +49,12 @@ const routes = [
     path: '/editpost/:id',
     name: 'editpost',
     component: () => import(/* webpackChunkName: "about" */ '../views/EditPost.vue')
-  }
+  },
+  {
+    path: '/error404',
+    name: 'errorfourofour',
+    component: () => import(/* webpackChunkName: "about" */ '../views/ErrorFourOFour.vue')
+  },
 ]
 
 const router = createRouter({

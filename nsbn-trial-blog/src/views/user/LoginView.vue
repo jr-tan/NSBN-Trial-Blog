@@ -25,6 +25,9 @@
 <script setup>
     import axios from "axios";
     import {ref} from 'vue';
+    import { useRouter } from 'vue-router';
+
+    const router = useRouter()
 
     const topInput = ref('');
     const pwdInput = ref('');
@@ -36,8 +39,12 @@
         .then((response) => {
             let responseinfo = ref(null)
             responseinfo.value = response.data
-            console.log(responseinfo.value.value)
-            alert(responseinfo.value.value)
+            console.log(responseinfo.value.outcome)
+            if (responseinfo.value.outcome == 'success'){
+            router.push({name: 'home'})}
+            else{
+                alert(responseinfo.value.outcome +',please try again')
+            }
             })
     }
 </script>
