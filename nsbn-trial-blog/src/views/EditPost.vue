@@ -34,6 +34,19 @@ const router = useRouter()
 
 const posts = ref(null)
 const id = ref(route.params.id)
+const userPosted = ref('')
+const getuserinfo = ref(null)
+
+  axios.get('http://localhost:8080/api/getprofileinfo')
+    .then((response) => {getuserinfo.value = response.data
+    console.log(getuserinfo.value)
+        if (userPosted.value != getuserinfo.value.userid){
+            //bypass
+        }
+        else{
+            router.push({name: 'errorfourothree'})
+        }}
+      )
 
 let requestlink = ref('http://localhost:8080/api/getpost?idp='+id.value)
     axios.get(requestlink.value)
@@ -42,6 +55,7 @@ let requestlink = ref('http://localhost:8080/api/getpost?idp='+id.value)
     if (posts.value.length ==  1){
         titleInput.value = posts.value[0].title
         descriptionInput.value = posts.value[0].description
+        userPosted.value = posts.value[0].userPosted
     }
     else{
         router.push({name: 'home'});

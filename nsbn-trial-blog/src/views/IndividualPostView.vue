@@ -29,6 +29,11 @@ const id = ref(route.params.id)
 const posts = ref(null)
 
     //checks whether to render the delete button
+    /*
+    broken
+    axios.post('http://localhost:8080/api/updateviews?idp='+id.value)
+    .then{(response) = console.log(response)}*/
+
   axios.get('http://localhost:8080/api/getprofileinfo')
     .then((response) => {getuserinfo.value = response.data
     console.log(getuserinfo.value)

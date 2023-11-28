@@ -195,6 +195,15 @@ async function routes(fastify, options) {
         token: request.session.token}
     })
 
+    fastify.post('/updateviews', async function handler(request, reply) {
+        const { idp } = request.query
+        const posttoget = Posts.findOne({ where: { postid: idp } })
+        const originalviewcount = post.views
+        console.log(originalviewcount);
+        Posts.update({ views:  originalviewcount+1},
+            { where: { postid: idp } })  
+    })
+
     //PURELY TESTING PURPOSES
     fastify.get('/test', async function handler(request, reply) {
         console.log('hello')
@@ -213,6 +222,7 @@ async function routes(fastify, options) {
         console.log('ab' + request.session.token)
         reply.send('nice')}
     })
+
 
 }
 

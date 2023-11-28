@@ -55,6 +55,11 @@ const routes = [
     name: 'errorfourofour',
     component: () => import(/* webpackChunkName: "about" */ '../views/ErrorFourOFour.vue')
   },
+  {
+    path: '/error403',
+    name: 'errorfourothree',
+    component: () => import(/* webpackChunkName: "about" */ '../views/ErrorFourOThree.vue')
+  },
 ]
 
 const router = createRouter({
