@@ -1,5 +1,7 @@
 const Posts = require('../models/posts')
 const Users = require('../models/users')
+const Ratings = require('../models/ratings')
+const Comments = require('../models/comments')
 const sequelize = require('../config/DBConfig');
 const bcrypt = require('bcryptjs');
 const jwt = require("jsonwebtoken");
@@ -67,6 +69,7 @@ async function routes(fastify, options) {
     
     fastify.post('/deletePost', async function handler(request, reply) {
         const { idp } = request.query
+        Comments.destroy({ where: { postcommented: idp } })
         Posts.destroy({where: {postid: idp}})
     })
 
@@ -76,14 +79,58 @@ async function routes(fastify, options) {
         const originalviewcount = posttoget.views
         Posts.update({ views: originalviewcount + 1 },
             { where: { postid: idp } })
-    })
+    })  
 
-    fastify.post('/increaserating', async function handler(request, reply) {
-        const { idp } = request.query
-        posttoget = await Posts.findOne({ where: { postid: idp } })
+    fastify.post('/ratepost', async function handler (request, reply){
+        const {idp} = request.query;
+        const userid = request.session.userid;
+        //checks if user has rated on the post before 
+        checkifrated = await Ratings.findOne({ where: { postid: idp, userrated: userid } })
+        if (checkifrated){
+            return "user rated"
+        }
+        else{
+            Ratings.create({postid: idp, userrated:userid})
+        }
+
+        /*posttoget = await Posts.findOne({ where: { postid: idp } })
         const originalratingcount = posttoget.ratings
         Posts.update({ ratings: originalratingcount + 1 },
-            { where: { postid: idp } })
+            { where: { postid: idp } })*/
+    })
+
+    fastify.post('/createcomment', async function handler(request, reply){
+        const newreply = request.body;
+        const usercommented = newreply.usercommented;
+        const postcommented = newreply.postcommented;
+        const commenttext = newreply.commenttext;
+        Comments.create({postcommented: postcommented, usercommented:usercommented, commenttext:commenttext})
+    })
+
+    fastify.get('/getcomment', async function handler(request, reply){
+        const {idp} = request.query;
+        const {commentid} = request.query;
+        if (idp!=null){
+        let commentsjson = await Comments.findAll({where: {postcommented : idp}});
+        return commentsjson}
+        else{
+            let commentsjson = await Comments.findAll({ where: { commentsid: commentid } });
+            return commentsjson      
+        }
+    })
+
+    fastify.post('/updatecomment', async function handler (request, reply){
+        const {idp} = request.query;
+        const updatedcomment = request.body.newcomment
+        //above is COMMENTS ID not POST ID
+        Comments.update({ commenttext: updatedcomment, isedited:1}, 
+            {where: {commentsid:idp}})
+    })
+
+    fastify.post('/deletecomment', async function handler(request, reply){
+        const {idp} = request.body
+        console.log(idp);
+        Comments.destroy({where: {commentsid : idp}})
     })
 
     fastify.post('/createuser', async function handler(request, reply) {
@@ -192,7 +239,7 @@ async function routes(fastify, options) {
         }*/
     })
 
-    fastify.get('/logout', async function handler(request, reply) {
+    fastify.post('/logout', async function handler(request, reply) {
         if (request.session.authenticated) {
             request.session.destroy((err) => {
                 if (err) {

@@ -2,22 +2,31 @@
 
   <NavbarVue>
 </NavbarVue>
-
+<div class="ml-auto" style="">
     <h1>{{title}}</h1>
     <i>Posted by {{userPosted}}</i>
     <br>
     <p>Posted on {{datePosted}}</p>
     <p>{{description}}</p>
+    <p hidden>{{currentuser}} </p>
 
     <div id="actions">
-    <button @click="editPost" id="editbutton" class="btn btn-outline-primary"><i class="fas fa-edit"></i>Edit </button>
+    <button @click="editPost" id="editbutton" class="btn btn-outline-warning"><i class="fas fa-edit"></i>Edit </button>
+    <button @click="ratePost" id="editbutton" class="btn btn-outline-primary"><i class="fas fa-thumbs-up"></i>Like </button>
     <button @click="deletePost" id="deletebutton" class="btn btn-danger"><i class="fa fa-trash" aria-hidden="true"></i>Delete </button>
     <p id="nologin"> Make a account to make your own posts! </p>
     </div>
+
+    <br>
+
+    <CommentsCompo :pullId="id" :key="currentuser" :userId="currentuser">
+    </CommentsCompo>
+</div>
 </template>
 
 <script setup>
     import NavbarVue from '../components/HeaderNFooter/NavBar.vue';
+    import CommentsCompo from '../components/CommentsCompo.vue';
     import axios from "axios";
     import {ref} from 'vue';
     import { useRoute, useRouter } from 'vue-router';
@@ -30,6 +39,7 @@
     const description = ref(null);
     const datePosted = ref(null);
     const getuserinfo = ref(null);
+    const currentuser = ref(null);
 
     const id = ref(route.params.id);
     const posts = ref(null);
@@ -58,8 +68,7 @@
     //gets information of user logged in
     axios.get('http://localhost:8080/api/getprofileinfo')
         .then((response) => {getuserinfo.value = response.data
-            console.log(getuserinfo.value.userid)
-            console.log(userPosted.value)
+           currentuser.value = getuserinfo.value.userid;
             if (getuserinfo.value.outcome == 'authenticated'){
                 if (getuserinfo.value.role != "admin"){
                     //not admin
@@ -88,6 +97,17 @@ const deletePost = () => {
     axios.post('http://localhost:8080/api/deletePost?idp='+id.value)
     .then(() => {  alert('post deleted.')
     router.push({name: 'home'})}
+    )
+}
+
+const ratePost = () => {
+    axios.post('http://localhost:8080/api/ratepost?idp='+id.value)
+    .then((outcome) => {
+        console.log(outcome)
+        if (outcome.data == "user rated"){
+            alert("you have already rated on this post.")
+        }
+    }
     )
 }
 

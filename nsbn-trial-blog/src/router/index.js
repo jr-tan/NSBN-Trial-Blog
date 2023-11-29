@@ -60,6 +60,16 @@ const routes = [
     name: 'errorfourothree',
     component: () => import(/* webpackChunkName: "about" */ '../views/ErrorFourOThree.vue')
   },
+  {
+    path: '/deletecomment/:id',
+    name: 'deletecomment',
+    component: () => import(/* webpackChunkName: "about" */ '../views/DeleteComment.vue')
+  },
+  {
+    path: '/editcomment/:id',
+    name: 'editcomment',
+    component: () => import(/* webpackChunkName: "about" */ '../views/EditComment.vue')
+  },
 ]
 
 const router = createRouter({

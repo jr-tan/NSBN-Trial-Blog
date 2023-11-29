@@ -10,7 +10,7 @@
 					</li>
 					<li class="nav-item">
 						<a href="/login" class="nav-link" v-if="sessionstatus==1">Login</a>
-						<a @click="logout" class="nav-link" v-if="sessionstatus==2">Log Out</a>
+						<a @click="logout" class="nav-link" style=" cursor: pointer; " v-if="sessionstatus==2">Log Out</a>
 					</li>
 			</ul>
 		</div>
@@ -21,13 +21,10 @@
 <script setup>
 import axios from "axios"
 import {ref} from 'vue'
-import {useRouter } from 'vue-router'
 
 let sessionstatus = ref(1)
 
 const getuserinfo = ref(null)
-
-const router = new useRouter()
 
 axios.get('http://localhost:8080/api/getprofileinfo')
     .then((response) => {getuserinfo.value = response.data
@@ -40,7 +37,7 @@ axios.get('http://localhost:8080/api/getprofileinfo')
 const logout = () => {
 	console.log('attempt');
 	axios.post('http://localhost:8080/api/logout')
-    .then(router.push({name : 'home'}))
+    .then(window.location.reload());
 }
 
 </script>

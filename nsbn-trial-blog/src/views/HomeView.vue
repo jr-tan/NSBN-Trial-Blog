@@ -6,12 +6,14 @@
   
     <div class="container" v-for="item in posts" v-bind:key="item"> 
       <div class="card mb-2" >
+          <div class="card-header">
+             <h3 class="card-title"><strong><b>{{item.title}}</b></strong></h3>
+         </div>
           <div class="card-body">
               <div class="row">
                   <div>
-                      <h3 class="float-left"><strong><b>{{item.title}}</b></strong></h3>
                       <p>
-                          <span class="float-right"><i class="fa fa-eye"></i> {{item.views}} | By {{item.userPosted}}</span>
+                          <span class="float-right">By <strong>{{item.userPosted}}</strong> | <i class="fa fa-eye"></i> {{item.views}} | <i class="fa fa-comment-alt"></i> {{item.ratings}}</span>
                       </p>
                       <p style="   overflow: hidden;
                               text-overflow: ellipsis;
