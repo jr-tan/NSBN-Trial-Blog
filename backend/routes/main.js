@@ -13,6 +13,8 @@ const nodemailer = require("nodemailer");
 
 async function routes(fastify, options) {
     // Add more route handlers as needed
+
+
     fastify.post('/createpost', async function handler(request, reply){
         const newPost = request.body;
         const title = newPost.title;
@@ -284,7 +286,6 @@ async function routes(fastify, options) {
         }
     });
 
-    
     fastify.post('/updatepassword', async function handler(request, reply) {
         const username = request.body.username;
         console.log(request.body);
@@ -293,38 +294,16 @@ async function routes(fastify, options) {
             bcrypt.hash(newpassword, salt, (err, hash) => {
                 if (err) throw err;
                 const hashedpw = hash;
-                Users.update({ password: hashedpw, hasrequestedtoreset :1}, {where: {publicusername:username}})
+                Users.update({ password: hashedpw, hasrequestedtoreset :0}, {where: {publicusername:username}})
             })
         })
         reply.send('update done')
     })
     
-
     fastify.get('/getsessioninfo', async function handler(request, reply) {
         return {login: request.session.authenticated, 
         token: request.session.token}
     })
-
-    //PURELY TESTING PURPOSES
-    fastify.get('/test', async function handler(request, reply) {
-        console.log('hello')
-        console.log('ab' + request.session.token)
-        console.log('cd' + request.session.authenticated)
-        reply.send('hello')
-    })
-
-    fastify.get('/locked', async function handler(request, reply) {
-        console.log('cd' + request.session.authenticated)
-        if (request.session.authenticated != true){
-            reply.send('no perms')
-        }
-        else{
-        console.log('hello')
-        console.log('ab' + request.session.token)
-        reply.send('nice')}
-    })
-
-
 }
 
 module.exports = routes;

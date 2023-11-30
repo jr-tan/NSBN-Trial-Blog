@@ -27,22 +27,24 @@
     const route = useRoute()
 
     const Userinfo = ref('');
-    const Username = '';
+    const Username = ref('');
     const Password = ref('');
 	const ErrorforPassword = ref('');
     const id = ref(route.params.id);
 
+    console.log(id)
     axios.get('http://localhost:8080/api/getuserbyid?idp='+id.value)
     .then((response) => { 
-    if (response.data != "no user"){
+    console.log(response.data)
+    console.log(response.data.hasrequestedtoreset)
+    if (response.data == "no user"){
+        router.push({name: "errorfourofour"})}
+    else{
         Userinfo.value = response.data
         Username.value = response.data.publicusername
         if (response.data.hasrequestedtoreset==0){
             router.push({name: "errorfourofour"})
-        }
-    else{
-        router.push({name: "errorfourofour"})
-    }}})
+            }}})
     //submits for login and checks
 
     const Submitform = () => {
