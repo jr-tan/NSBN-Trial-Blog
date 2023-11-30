@@ -1,6 +1,4 @@
 <template>
-  <NavbarVue>
-</NavbarVue>
 	<div class="col-md-6 mx-auto">
 		<div class="card card-body">
             <h2 class="py-3"><strong>Reset Password</strong></h2>
@@ -11,14 +9,13 @@
 					<label for="username" class="pb-2">Enter the new password of your account {{username}}</label>
 					<input name="username" type="password" class="form-control" v-model="Password" required>
 				</div>
-                <button type="submit" class="btn btn-primary">Submit</button>
+                <button type="submit" class="btn btn-primary mt-3">Submit</button>
             </form>
         </div>
     </div>
 </template>
 
 <script setup>
-    import NavbarVue from '../../components/HeaderNFooter/NavBar.vue';
     import axios from "axios";
     import {ref} from 'vue';
     import { useRouter, useRoute } from 'vue-router';
@@ -26,13 +23,17 @@
     const router = useRouter()
     const route = useRoute()
 
+    const LoggedInInfo = ref('')
     const Userinfo = ref('');
     const Username = ref('');
     const Password = ref('');
 	const ErrorforPassword = ref('');
     const id = ref(route.params.id);
 
-    console.log(id)
+     //checks if user is authenticated
+    axios.get('http://localhost:8080/api/getprofileinfo')
+        .then((response) => {LoggedInInfo.value = response.data})
+    
     axios.get('http://localhost:8080/api/getuserbyid?idp='+id.value)
     .then((response) => { 
     console.log(response.data)
@@ -43,8 +44,9 @@
         Userinfo.value = response.data
         Username.value = response.data.publicusername
         if (response.data.hasrequestedtoreset==0){
+            if (response.data.publicusername != LoggedInInfo.value.userid){
             router.push({name: "errorfourofour"})
-            }}})
+            }}}})
     //submits for login and checks
 
     const Submitform = () => {

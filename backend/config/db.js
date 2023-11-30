@@ -1,6 +1,8 @@
+require("dotenv").config();
+
 module.exports = {
     host: '127.0.0.1',
     database: 'nsbn-trial-blog',
-    username: 'root',
-    password: '1311'
+    username: process.env.DBUSERNAME,
+    password: process.env.DBPASSWORD
 }

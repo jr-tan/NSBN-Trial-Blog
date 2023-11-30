@@ -28,6 +28,9 @@ const Posts = db.define('posts', {
     },
     commentscount: {
         type: Sequelize.INTEGER
+    },
+    isedited: {
+        type: Sequelize.INTEGER
     }
 });
 

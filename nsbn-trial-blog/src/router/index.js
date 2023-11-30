@@ -23,27 +23,27 @@ const routes = [
   {
     path: '/indpost/:id',
     name: 'indpost',
-    component: () => import(/* webpackChunkName: "about" */ '../views/IndividualPostView.vue')
+    component: () => import(/* webpackChunkName: "about" */ '../views/posts/IndividualPostView.vue')
   },
   {
     path: '/create',
     name: 'createpost',
-    component: () => import(/* webpackChunkName: "about" */ '../views/CreatePost.vue')
+    component: () => import(/* webpackChunkName: "about" */ '../views/posts/CreatePost.vue')
   },
   {
     path: '/editpost/:id',
     name: 'editpost',
-    component: () => import(/* webpackChunkName: "about" */ '../views/EditPost.vue')
+    component: () => import(/* webpackChunkName: "about" */ '../views/posts/EditPost.vue')
   },
   {
     path: '/error404',
     name: 'errorfourofour',
-    component: () => import(/* webpackChunkName: "about" */ '../views/ErrorFourOFour.vue')
+    component: () => import(/* webpackChunkName: "about" */ '../views/errors/ErrorFourOFour.vue')
   },
   {
     path: '/error403',
     name: 'errorfourothree',
-    component: () => import(/* webpackChunkName: "about" */ '../views/ErrorFourOThree.vue')
+    component: () => import(/* webpackChunkName: "about" */ '../views/errors/ErrorFourOThree.vue')
   },
   {
     path: '/forgetpassword',
@@ -68,7 +68,7 @@ const routes = [
   {
     path: '/:pathMatch(.*)*',
     name: 'errorfourofour',
-    component: () => import(/* webpackChunkName: "about" */ '../views/ErrorFourOFour.vue')
+    component: () => import(/* webpackChunkName: "about" */ '../views/errors/ErrorFourOFour.vue')
   }
 ]
 

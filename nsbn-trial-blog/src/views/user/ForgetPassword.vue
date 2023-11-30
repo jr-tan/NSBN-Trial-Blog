@@ -1,6 +1,4 @@
 <template>
-  <NavbarVue>
-</NavbarVue>
 	<div class="col-md-6 mx-auto">
 		<div class="card card-body">
             <h2 class="py-3"><strong>Forget Password</strong></h2>
@@ -10,14 +8,13 @@
 					<label for="username" class="pb-2">Enter the username of your account</label>
 					<input name="username" class="form-control" v-model="Username" required>
 				</div>
-                <button type="submit" class="btn btn-primary">Submit</button>
+                <button type="submit" class="btn btn-primary  mt-3">Submit</button>
             </form>
         </div>
     </div>
 </template>
 
 <script setup>
-    import NavbarVue from '../../components/HeaderNFooter/NavBar.vue';
     import axios from "axios";
     import {ref} from 'vue';
     import { useRouter } from 'vue-router';

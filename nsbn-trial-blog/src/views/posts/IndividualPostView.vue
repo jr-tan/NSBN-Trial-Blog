@@ -1,13 +1,10 @@
 <template>
-
-  <NavbarVue>
-</NavbarVue>
-<div class="mx-auto col-md-8">
+<div class="mx-auto">
     <h1><strong>{{title}}</strong></h1>
-    <i>Posted by {{userPosted}}</i>
+    <i>Posted by {{userPosted}}</i> <a v-if="edited==1"><i> (edited)</i></a>
     <br>
-    <p>Posted on {{datePosted}}</p>
-    <p>{{description}}</p>
+    <p>Posted on {{datePosted}} | {{ratings}} Likes</p>
+    <h4>{{description}}</h4>
     <p hidden>{{currentuser}} </p>
 
     <div id="actions">
@@ -27,8 +24,7 @@
 </template>
 
 <script setup>
-    import NavbarVue from '../components/HeaderNFooter/NavBar.vue';
-    import CommentsCompo from '../components/CommentsCompo.vue';
+    import CommentsCompo from '../../components/CommentsCompo.vue';
     import axios from "axios";
     import {ref} from 'vue';
     import { useRoute, useRouter } from 'vue-router';
@@ -43,6 +39,8 @@
     const getuserinfo = ref(null);
     const currentuser = ref(null);
     const commentcount = ref(null);
+    const edited = ref(null);
+    const ratings = ref(null);
 
     const id = ref(route.params.id);
     const posts = ref(null);
@@ -65,7 +63,9 @@
                     userPosted.value = posts.value[0].userPosted;
                     description.value = posts.value[0].description;
                     datePosted.value = posts.value[0].datePosted;
-                    commentcount.value = posts.value[0].commentscount;}
+                    commentcount.value = posts.value[0].commentscount;
+                    ratings.value = posts.value[0].ratings;
+                    edited.value = posts.value[0].isedited}
                 else{
                     router.push({name: 'errorfourofour'});
                 }
@@ -94,7 +94,7 @@
                         document.getElementById('ratebutton').remove();
                     }
                     })
-                    ,300);
+                    ,500);
                 }
     })
 
@@ -108,8 +108,8 @@ const deletePost = () => {
     let text = "Are you sure you want to delete your post?";
     if (confirm(text) == true) {
         axios.post('http://localhost:8080/api/deletePost?idp='+id.value)
-        .then(() => {  alert('post deleted.')
-            window.location.href = "http://localhost:8080/"
+        .then(() => {alert('post deleted.' )
+         window.location.href = "http://localhost:8080/"
         })
     }}
 
@@ -119,6 +119,8 @@ const ratePost = () => {
     .then((outcome) => {
         if (outcome.data == "user rated"){
             alert("you have already rated on this post.")
+        }else{
+            window.location.reload();
         }
     }
     )

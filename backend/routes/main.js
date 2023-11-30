@@ -14,7 +14,7 @@ const nodemailer = require("nodemailer");
 async function routes(fastify, options) {
     // Add more route handlers as needed
 
-
+    //POSTS
     fastify.post('/createpost', async function handler(request, reply){
         const newPost = request.body;
         const title = newPost.title;
@@ -27,20 +27,22 @@ async function routes(fastify, options) {
             userPosted: userPosted,
             views:0,
             ratings:0,
-            datePosted: sequelize.fn('NOW')
+            datePosted: sequelize.fn('NOW'),
+            isedited: 0,
         })
     })
 
     fastify.get('/getpost', async function handler(request, reply){
-        let postset = await Posts.findAll();
+        //posts are sorted by date first in descending order, then by views in ascending order
+        let postset = await Posts.findAll({order: [['postid','DESC'],['views','ASC'], ]});
         postset = JSON.stringify(postset);
         postset = JSON.parse(postset);
         //console.log(postset);
 
-        const { idp } = request.query
-        if (!idp) return postset
-        const paramedposts = postset.filter((postset) => postset.postid == idp)
-        return paramedposts
+        const { idp } = request.query;
+        if (!idp) return postset;
+        const filteredposts = postset.filter((postset) => postset.postid == idp);
+        return filteredposts;
     })
 
     fastify.post('/updatePost', async function handler(request, reply) {
@@ -55,50 +57,237 @@ async function routes(fastify, options) {
         Posts.update({
             title: test,
             description: description,
-            userPosted: "test",
+            userPosted: priorupdatePost.userPosted,
             views: priorupdatePost.views,
             ratings: priorupdatePost.ratings,
-            datePosted: sequelize.fn('NOW')
+            datePosted: sequelize.fn('NOW'),
+            isedited: 1,
         },
         {where: {postid: idp}}
         )
     })
     
     fastify.post('/deletePost', async function handler(request, reply) {
-        const { idp } = request.query
-        Comments.destroy({ where: { postcommented: idp } })
-        console.log('all comments deleted')
+        const { idp } = request.query;
+        Comments.destroy({ where: { postcommented: idp } });
         setTimeout(() => { Posts.destroy({ where: { postid: idp } }) }, 2000);
     })
 
-    fastify.post('/updateviews', async function handler(request, reply) {
-        const { idp } = request.query
-        try{
-        posttoget = await Posts.findOne({ where: { postid: idp } })
-        const originalviewcount = posttoget.views
-        Posts.update({ views: originalviewcount + 1 },
-            { where: { postid: idp } })}
-        catch{reply.send('no posts')}
-    })  
-
-    fastify.post('/ratepost', async function handler (request, reply){
-        const {idp} = request.query;
+    //RATINGS
+    fastify.post('/ratepost', async function handler(request, reply) {
+        const { idp } = request.query;
         const userid = request.session.userid;
         //checks if user has rated on the post before 
         checkifrated = await Ratings.findOne({ where: { postid: idp, userrated: userid } })
-        if (checkifrated){
-            return "user rated"
+        if (checkifrated) {
+            return "user rated";
         }
-        else{
-            Ratings.create({postid: idp, userrated:userid})
+        else {
+            Ratings.create({ postid: idp, userrated: userid });
         }
-
-        /*posttoget = await Posts.findOne({ where: { postid: idp } })
-        const originalratingcount = posttoget.ratings
-        Posts.update({ ratings: originalratingcount + 1 },
-            { where: { postid: idp } })*/
     })
 
+    //REVIEWS
+    fastify.post('/updateviews', async function handler(request, reply) {
+        const { idp } = request.query;
+        try{
+            posttoget = await Posts.findOne({ where: { postid: idp } });
+            const originalviewcount = posttoget.views;
+            Posts.update({ views: originalviewcount + 1 },  { where: { postid: idp } })
+        }
+        catch{reply.send('no posts')};
+    })  
+
+    fastify.post('/createuser', async function handler(request, reply) {
+        const newUser = request.body;
+        const usernameI = newUser.username;
+        const bio = newUser.bio;
+        const emailinput = newUser.email;
+        const unhashedpw = newUser.password;
+        //checks if username has been used prior
+        const findIfExists = await Users.findOne({ where: { publicusername: usernameI } });
+        if (findIfExists) {
+            return "username existed";
+        }
+        else {
+            //checks if email has been used prior
+            const findEmailExists = await Users.findOne({ where: { email: emailinput } });
+            if (findEmailExists) {
+                return "email existed";
+            }
+            else {
+                //hashes password using bcrypt
+                bcrypt.genSalt(10, (err, salt) => {
+                    bcrypt.hash(unhashedpw, salt, (err, hash) => {
+                        if (err) throw err;
+                        const hashedpw = hash;
+                        Users.create({
+                            publicusername: usernameI,
+                            userbio: bio,
+                            email: emailinput,
+                            password: hashedpw,
+                            role: 'user'
+                        });
+                    });
+                });
+
+                //sends email
+                let transporter = nodemailer.createTransport({
+                    host: "smtp-mail.outlook.com", 
+                    port: 587, 
+                    secure: false,
+                    auth: {
+                        user: process.env.OUTLOOKUSERNAME, 
+                        pass: process.env.OUTLOOKPASSWORD, 
+                    },
+                });
+                
+                let info = await transporter.sendMail({
+                    from: '"NS SBN Trial Blog" <' + process.env.OUTLOOKUSERNAME + '>',
+                    to: emailinput,
+                    subject: "Welcome to NS SBN Trial Blog!",
+                    html: `<p> Dear ${usernameI}, </p> <br> <p>We are thrilled to have you here! <br> Welcome to our blog community. We are committed to providing you with engaging, informative, and inspiring content. Our blog covers a wide range of topics and we're confident you'll find plenty of articles that will pique your interest. </p><br> <p>Once again, welcome to our blog. We can't wait to share our content with you. <br> Best Regards,<br>NS SBN Trial Blog`
+                });
+                console.log('message sent')
+            }
+        }
+    })
+
+    fastify.post('/login', async function handler(request, reply) {
+        const Usertocheck = request.body;
+        const topinputtocheck = Usertocheck.topinput;
+        const passwordinput = Usertocheck.passwordinput;
+        const allow = false;
+        const dbusertocheck = await Users.findOne({ where: { publicusername: topinputtocheck } })
+        //checks if user exists
+        if (dbusertocheck) {
+            //compare password using bcrypt
+            const comapre = await bcrypt.compare(passwordinput, dbusertocheck.password)
+            if (comapre == true) {
+                //signing of jsonwebtoken (not implemented in the end, session used in favor)
+                const payload = { user_id: topinputtocheck };
+                const token = jwt.sign({ payload }, 'fsesbn');
+                request.session.authenticated = true
+                //request.session.token = token //=> unimplemented but working
+                request.session.userid = dbusertocheck.publicusername
+                request.session.userrole = dbusertocheck.role
+                return { outcome: 'success', value: token }
+            }
+            else {
+                //wrong password
+                return { outcome: 'wrong password', value: '' }
+            }
+        }
+        else {
+            //wrong username
+            return { outcome: 'wrong username', value: '' }
+        }
+    })
+
+    //gets session info
+    fastify.get('/getprofileinfo', async function handler(request, reply) {
+        if (request.session.authenticated) {
+            console.log('logged in')
+            console.log(request.session.userrole)
+            return { outcome: 'authenticated', userid: request.session.userid, role: request.session.userrole }
+        } else {
+            console.log('nth')
+            return { outcome: 'no perms', userid: '', role: '' }
+        }
+    })
+
+    fastify.get('/getuserbyid', async function handler(request, reply) {
+        //*id meaning the id called by the database, not the public username
+        //this is used specifically for the reset password page to get information
+        const { idp } = request.query
+        console.log('idp as' + idp)
+        const userobject = await Users.findOne({ where: { userid: idp } });
+        console.log(userobject)
+        if (userobject) {
+            //sends back user information
+            reply.send(userobject)
+        }
+        else {
+            reply.send('no user')
+        }
+    })
+
+    //request to change password email
+    fastify.post('/changepasswordrequest', async function handler(request, reply) {
+        const usernametosendemail = request.body.userid;
+        // checks if user already exists
+        const dbusertocheck = await Users.findOne({ where: { publicusername: usernametosendemail } })
+        if (dbusertocheck) {
+            const useremail = dbusertocheck.email
+            const userinternalid = dbusertocheck.userid
+            //sends email
+            let transporter = nodemailer.createTransport({
+                host: "smtp-mail.outlook.com",
+                port: 587, 
+                secure: false, 
+                auth: {
+                    user: process.env.OUTLOOKUSERNAME, 
+                    pass: process.env.OUTLOOKPASSWORD, 
+                },
+            });
+            console.log(process.env.OUTLOOKUSERNAME)
+            let info = await transporter.sendMail({
+                from: '"NS SBN Trial Blog" <' + process.env.OUTLOOKUSERNAME + '>',
+                to: useremail,
+                subject: "Reset your password",
+                html: `<p>Dear ${usernametosendemail},</p> <br> <p> We recently received a request to reset the password for your account ${usernametosendemail}. To reset your password, please click on the following link : http://localhost:8080/resetpassword/${userinternalid} </p> <br> <p> Thank you for your attention to this matter. </p> <br> <p>Best regards,</p> <p> NS SBN Trial Blog</p>`
+            });
+            //updates flag to set such that the user had requested the password reset
+            //if this flag is not updated (ie. its still 0), the link would redirect to error page
+            Users.update({ hasrequestedtoreset: 1 }, { where: { publicusername: usernametosendemail } })
+            reply.send('message sent')
+        }
+        else {
+            reply.send('no user')
+        }
+    })
+
+    fastify.post('/updatepassword', async function handler(request, reply) {
+        const username = request.body.username;
+        //console.log(request.body);
+        const newpassword = request.body.newpassword;
+        //rehash password using bcrypt
+        bcrypt.genSalt(10, (err, salt) => {
+            bcrypt.hash(newpassword, salt, (err, hash) => {
+                if (err) throw err;
+                const hashedpw = hash;
+                //flag sets back to 0, and updates password
+                Users.update({ password: hashedpw, hasrequestedtoreset: 0 }, { where: { publicusername: username } })
+            })
+        })
+        reply.send('update done')
+    })
+
+    fastify.post('/logout', async function handler(request, reply) {
+        if (request.session.authenticated) {
+            //deletes session
+            request.session.destroy((err) => {
+                if (err) {
+                    reply.status(500)
+                    reply.send('Internal Server Error')
+                } else {
+                    reply.redirect('/')
+                }
+            })
+        } else {
+            reply.redirect('/')
+        }
+    });
+
+    /*temporary comment - not sure if this is still used
+    fastify.get('/getsessioninfo', async function handler(request, reply) {
+        return {
+            login: request.session.authenticated,
+            token: request.session.token
+        }
+    })*/
+
+    // COMMWENTS
     fastify.post('/createcomment', async function handler(request, reply){
         const newreply = request.body;
         const usercommented = newreply.usercommented;
@@ -131,178 +320,6 @@ async function routes(fastify, options) {
         const {idp} = request.body
         console.log(idp);
         Comments.destroy({where: {commentsid : idp}})
-    })
-
-    fastify.post('/createuser', async function handler(request, reply) {
-        const newUser = request.body;
-        const usernameI = newUser.username;
-        const bio = newUser.bio;
-        const emailinput = newUser.email;
-        const unhashedpw = newUser.password;
-        console.log(usernameI);
-        const findIfExists = await Users.findOne({where: {publicusername : usernameI}})
-        if (findIfExists){
-            console.log("not create");
-            return "username existed"
-        }
-        else{
-          const findEmailExists = await Users.findOne({where: {email : emailinput}})
-          if (findEmailExists){
-             return "email existed";
-          }
-          else{
-              bcrypt.genSalt(10, (err, salt) => {
-                  bcrypt.hash(unhashedpw, salt, (err, hash) => {
-                      if (err) throw err;
-                      const hashedpw = hash;
-                      Users.create({
-                          publicusername: usernameI,
-                          userbio: bio,
-                          email: emailinput,
-                          password: hashedpw,
-                          role: 'user'
-                      });
-                  });
-              });
-
-              let transporter = nodemailer.createTransport({
-                  host: "smtp-mail.outlook.com", // SMTP server address (usually mail.your-domain.com)
-                  port: 587, // Port for SMTP (usually 465)
-                  secure: false, // Usually true if connecting to port 465
-                  auth: {
-                      user: process.env.OUTLOOKUSERNAME, // Your email address
-                      pass: process.env.OUTLOOKPASSWORD, // Password (for gmail, your app password)
-                  },
-              });
-              console.log(process.env.OUTLOOKUSERNAME)
-              // Define and send message inside transporter.sendEmail() and await info about send from promise:
-              let info = await transporter.sendMail({
-                  from: '"NS SBN Trial Blog" <' + process.env.OUTLOOKUSERNAME + '>',
-                  to: emailinput,
-                  subject: "Welcome to NS SBN Trial Blog!",
-                  html: "<h1>Hello " + usernameI +"! </h1> <br> <p> Welcome! </p>"
-              });
-              console.log('message sent')
-          }
-        }
-    })
-
-    fastify.post('/login', async function handler(request, reply) {
-        const Usertocheck = request.body;
-        const topinputtocheck = Usertocheck.topinput;
-        const passwordinput = Usertocheck.passwordinput;
-        const allow = false;
-        const dbusertocheck = await Users.findOne({ where: { publicusername: topinputtocheck } })
-        if (dbusertocheck){
-            const comapre = await bcrypt.compare(passwordinput, dbusertocheck.password)
-            if (comapre == true){
-                const payload = { user_id: topinputtocheck };
-                const token = jwt.sign({ payload }, 'fsesbn');
-                request.session.authenticated = true
-                request.session.token = token //fallback?
-                request.session.userid = dbusertocheck.publicusername
-                request.session.userrole = dbusertocheck.role
-                return { outcome: 'success', value: token }
-            }
-            else{
-                //wrong passqword
-                console.log('a')
-                return {outcome : 'wrong password', value : ''}
-            }
-        }
-        else{
-            //nothing
-            return { outcome: 'wrong username', value: '' }
-        }
-    })
-
-    fastify.get('/getprofileinfo', async function handler(request, reply) {
-        if (request.session.authenticated) {
-            console.log('logged in')
-            console.log(request.session.userrole)
-            return {outcome: 'authenticated', userid: request.session.userid, role: request.session.userrole}
-        } else {
-            console.log('nth')
-            return {outcome: 'no perms', userid: '', role: ''}
-        }
-    })
-
-    fastify.get('/getuserbyid', async function handler(request, reply) {
-        const { idp } = request.query
-        console.log('idp as'+ idp)
-        const userobject = await Users.findOne({ where: { userid: idp } });
-        console.log(userobject)
-        if (userobject) {
-            reply.send(userobject)
-        }
-        else {
-            reply.send('no user')
-        }
-    })
-
-    fastify.post('/changepasswordrequest', async function handler(request, reply) {
-        const usernametosendemail = request.body.userid;
-        const dbusertocheck = await Users.findOne({ where: { publicusername: usernametosendemail }})
-        if (dbusertocheck) {
-        const useremail = dbusertocheck.email
-        const userinternalid = dbusertocheck.userid
-        
-        let transporter = nodemailer.createTransport({
-            host: "smtp-mail.outlook.com", // SMTP server address (usually mail.your-domain.com)
-            port: 587, // Port for SMTP (usually 465)
-            secure: false, // Usually true if connecting to port 465
-            auth: {
-                user: process.env.OUTLOOKUSERNAME, // Your email address
-                pass: process.env.OUTLOOKPASSWORD, // Password (for gmail, your app password)
-            },
-        });
-        console.log(process.env.OUTLOOKUSERNAME)
-        // Define and send message inside transporter.sendEmail() and await info about send from promise:
-        let info = await transporter.sendMail({
-            from: '"NS SBN Trial Blog" <' + process.env.OUTLOOKUSERNAME + '>',
-            to: useremail,
-            subject: "Reset your password",
-            html: `<p>Dear ${usernametosendemail}, <br> We recently received a request to reset the password for your account ${usernametosendemail}. To reset your password, please click on the following link : http://localhost:8080/resetpassword?id=${userinternalid} </p> <br> <p> Thank you for your attention to this matter. </p> <br> <p>Best regards,</p> <p> NS SBN Trial Blog</p>`
-        });
-            Users.update({ hasrequestedtoreset: 1 }, { where: { publicusername: usernametosendemail } })
-        reply.send('message sent')}
-        else{
-            reply.send('no user')
-        }
-    })
-
-    fastify.post('/logout', async function handler(request, reply) {
-        if (request.session.authenticated) {
-            request.session.destroy((err) => {
-                if (err) {
-                    reply.status(500)
-                    reply.send('Internal Server Error')
-                } else {
-                    reply.redirect('/')
-                }
-            })
-        } else {
-            reply.redirect('/')
-        }
-    });
-
-    fastify.post('/updatepassword', async function handler(request, reply) {
-        const username = request.body.username;
-        console.log(request.body);
-        const newpassword = request.body.newpassword;
-        bcrypt.genSalt(10, (err, salt) => {
-            bcrypt.hash(newpassword, salt, (err, hash) => {
-                if (err) throw err;
-                const hashedpw = hash;
-                Users.update({ password: hashedpw, hasrequestedtoreset :0}, {where: {publicusername:username}})
-            })
-        })
-        reply.send('update done')
-    })
-    
-    fastify.get('/getsessioninfo', async function handler(request, reply) {
-        return {login: request.session.authenticated, 
-        token: request.session.token}
     })
 }
 

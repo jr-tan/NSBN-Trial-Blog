@@ -1,5 +1,5 @@
 <template>
-<nav id="nav" class="navbar navbar-expand-sm navbar-dark fixed-top" style="background-color: black;">
+<nav id="nav" class="navbar navbar-expand-sm navbar-dark" style="background-color: black;">
 	<div class="container">
 		<a class="navbar-brand"><router-link to ="/" style="color:white">NS SBN Trial Blog</router-link></a>
 		<div class="collapse navbar-collapse" id="navbarNav">

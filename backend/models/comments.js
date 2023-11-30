@@ -21,6 +21,10 @@ const Comments = db.define('comments', {
     isedited:{
         type: Sequelize.INTEGER,
         //0 - No, 1 - Yes
+    },
+    datecommented:{
+        type: Sequelize.DATEONLY,
+        defaultValue: Sequelize.NOW
     }
 });
 

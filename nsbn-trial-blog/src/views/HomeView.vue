@@ -1,7 +1,4 @@
 <template> 
-
-  <NavbarVue>
-</NavbarVue>
   <h1 ref="titlechange" class="pb-3"> Welcome {{usernameifhave}}! </h1>
   
     <div class="container" v-for="item in posts" v-bind:key="item"> 
@@ -11,7 +8,7 @@
                   <div>
                     <h3 class="card-title"><strong><b>{{item.title}}</b></strong></h3>
                       <p>
-                          <span class="float-right">By <strong>{{item.userPosted}}</strong> | <i class="fa fa-eye"></i> {{item.views}} | <i class="fa fa-thumbs-up"></i> {{item.ratings}}</span>
+                          <span class="float-right">By <strong>{{item.userPosted}}</strong> | <i class="fa fa-eye"></i> {{item.views}} | <i class="fa fa-thumbs-up"></i> {{item.ratings}} | <i class="fa fa-comment"></i> {{item.commentscount}}</span>
                       </p>
                       <p style="   overflow: hidden;
                               text-overflow: ellipsis;
@@ -36,7 +33,6 @@
 
 
 <script setup>
-  import NavbarVue from '../components/HeaderNFooter/NavBar.vue';
   import axios from "axios"
   import {onMounted, ref} from 'vue'
   const posts = ref(null);

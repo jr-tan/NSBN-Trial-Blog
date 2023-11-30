@@ -1,10 +1,15 @@
 <template>
- <form @submit.prevent="Submitform">
-        <p ref="postid" hidden>{{id}}</p>
-        <textarea v-model = "commentInput" class="form-control"></textarea>
-        <button id="butAddVideo" type="submit" class="btn btn-primary mb-5">Post
-        </button>
-    </form>   
+    <div class="container">
+        <div class="card card-body">
+			<h2 class="text-center py-3"><strong>Edit Post</strong></h2>
+            <form @submit.prevent="Submitform">
+                    <p ref="postid" hidden>{{id}}</p>
+                    <textarea v-model = "commentInput" class="form-control"></textarea>
+                    <button id="butAddVideo" type="submit" class="btn btn-primary mt-3">Post
+                    </button>
+            </form>   
+        </div>
+    </div>
 </template>
 
 <script setup>
@@ -22,7 +27,7 @@
     //checks if op is the same as logged in user
     axios.get('http://localhost:8080/api/getprofileinfo')
     .then((response) => {getuserinfo.value = response.data
-        if (response.data.userid == getuserinfo.value.userid && response.data.isauthenticated == true){
+        if (response.data.userid == getuserinfo.value.userid && response.data.outcome == "authenticated"){
             //bypass
         }
         else{

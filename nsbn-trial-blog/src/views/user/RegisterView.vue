@@ -1,6 +1,4 @@
 <template>
-  <NavbarVue>
-</NavbarVue>
 
  <div class="row">
 	<div class="col-md-6 mx-auto">
@@ -39,7 +37,6 @@
 </template>
 
 <script setup>
-import NavbarVue from '../../components/HeaderNFooter/NavBar.vue';
 import {ref} from 'vue';
 import axios from "axios";
 import { useRouter } from 'vue-router'

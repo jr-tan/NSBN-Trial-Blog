@@ -2,7 +2,7 @@
 
     <div v-if="test.userId != ''">
         <br>
-        <h4 class="mx-3">
+        <h4>
         <strong>Create a comment</strong></h4>
         <form @submit.prevent="Submitform">
             <br>
@@ -17,8 +17,8 @@
     <div class="row pt-4" >
     <div v-for="item in comments" v-bind:key="item">
         <hr>
-        <h4><strong>{{item.commenttext}}</strong></h4>
-        <p>By {{item.usercommented}}</p>
+        <h5 class="container"><strong>{{item.commenttext}}</strong></h5>
+        <p>By {{item.usercommented}} | {{item.datecommented}}  <a v-if="item.isedited==1">(edited)</a></p>
         <p hidden>{{item.commentsid}}</p>
         <router-link :to="{name: 'editcomment',params: { id:item.commentsid}}"><button class="btn btn-warning" v-if="item.usercommented == test.userId" href=""><i class="fa fa-edit" aria-hidden="true"></i>Edit</button></router-link>
         <button class="btn btn-danger" v-if="item.usercommented == test.userId" @click="deleteComment(item.commentsid)"><i class="fas fa-trash"></i>Delete</button>

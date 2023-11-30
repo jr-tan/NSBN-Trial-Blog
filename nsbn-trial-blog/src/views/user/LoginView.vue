@@ -1,6 +1,4 @@
 <template>
-  <NavbarVue>
-</NavbarVue>
 	<div class="col-md-6 mx-auto">
 		<div class="card card-body">
             <h2 class="py-3"><strong>Login</strong></h2>
@@ -24,7 +22,6 @@
 </template>
 
 <script setup>
-    import NavbarVue from '../../components/HeaderNFooter/NavBar.vue';
     import axios from "axios";
     import {ref} from 'vue';
     import { useRouter } from 'vue-router';
