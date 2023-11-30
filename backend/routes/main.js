@@ -8,15 +8,10 @@ const jwt = require("jsonwebtoken");
 const fastifySession = require('@fastify/session');
 const fastifyCookie = require('@fastify/cookie');
 require("dotenv").config();
+const nodemailer = require("nodemailer");
+
 
 async function routes(fastify, options) {
-    fastify.get('/test/:id', async function handler(request, reply) {
-        const fs = require('fs');
-        const postjson = fs.readFileSync(__dirname + '/testData_toremove/posts.json')
-        const psotsend = JSON.parse(postjson);
-        reply.send(psotsend)
-    })
-
     // Add more route handlers as needed
     fastify.post('/createpost', async function handler(request, reply){
         const newPost = request.body;
@@ -70,15 +65,18 @@ async function routes(fastify, options) {
     fastify.post('/deletePost', async function handler(request, reply) {
         const { idp } = request.query
         Comments.destroy({ where: { postcommented: idp } })
-        Posts.destroy({where: {postid: idp}})
+        console.log('all comments deleted')
+        setTimeout(() => { Posts.destroy({ where: { postid: idp } }) }, 2000);
     })
 
     fastify.post('/updateviews', async function handler(request, reply) {
         const { idp } = request.query
+        try{
         posttoget = await Posts.findOne({ where: { postid: idp } })
         const originalviewcount = posttoget.views
         Posts.update({ views: originalviewcount + 1 },
-            { where: { postid: idp } })
+            { where: { postid: idp } })}
+        catch{reply.send('no posts')}
     })  
 
     fastify.post('/ratepost', async function handler (request, reply){
@@ -164,14 +162,27 @@ async function routes(fastify, options) {
                       });
                   });
               });
+
+              let transporter = nodemailer.createTransport({
+                  host: "smtp-mail.outlook.com", // SMTP server address (usually mail.your-domain.com)
+                  port: 587, // Port for SMTP (usually 465)
+                  secure: false, // Usually true if connecting to port 465
+                  auth: {
+                      user: process.env.OUTLOOKUSERNAME, // Your email address
+                      pass: process.env.OUTLOOKPASSWORD, // Password (for gmail, your app password)
+                  },
+              });
+              console.log(process.env.OUTLOOKUSERNAME)
+              // Define and send message inside transporter.sendEmail() and await info about send from promise:
+              let info = await transporter.sendMail({
+                  from: '"NS SBN Trial Blog" <' + process.env.OUTLOOKUSERNAME + '>',
+                  to: emailinput,
+                  subject: "Welcome to NS SBN Trial Blog!",
+                  html: "<h1>Hello " + usernameI +"! </h1> <br> <p> Welcome! </p>"
+              });
+              console.log('message sent')
           }
         }
-
-
-       /* if (userexists == false){
-            
-            });
-        }*/
     })
 
     fastify.post('/login', async function handler(request, reply) {
@@ -181,12 +192,6 @@ async function routes(fastify, options) {
         const allow = false;
         const dbusertocheck = await Users.findOne({ where: { publicusername: topinputtocheck } })
         if (dbusertocheck){
-            bcrypt.genSalt(10, (err, salt) => {
-                bcrypt.hash(passwordinput, salt, (err, hash) => {
-                    if (err) throw err;
-                    const hashedpw = hash;
-                });
-            });
             const comapre = await bcrypt.compare(passwordinput, dbusertocheck.password)
             if (comapre == true){
                 const payload = { user_id: topinputtocheck };
@@ -218,25 +223,50 @@ async function routes(fastify, options) {
             console.log('nth')
             return {outcome: 'no perms', userid: '', role: ''}
         }
+    })
 
-        /*//double matching??
-        const singleuser = null
-        try {
-            const token = request.headers.authorization.split(" ")[1];
-            const { payload } = jwt.verify(token, 'fsesbn');
-            console.log(payload)
-            singleuser = await Users.findOne({ where: { publicusername: payload.user_id } });
-            console.log(singleuser)
-        } catch (error) {
-            reply.status(401).send("unAuthorized");
+    fastify.get('/getuserbyid', async function handler(request, reply) {
+        const { idp } = request.query
+        console.log('idp as'+ idp)
+        const userobject = await Users.findOne({ where: { userid: idp } });
+        console.log(userobject)
+        if (userobject) {
+            reply.send(userobject)
         }
-        if (token == request.session.token){
-            //reasoning - since token can be easily tampered in header session should not be easily tampered and can be cross checked
-            //on hold - think about it later 28/11 0925
+        else {
+            reply.send('no user')
         }
+    })
+
+    fastify.post('/changepasswordrequest', async function handler(request, reply) {
+        const usernametosendemail = request.body.userid;
+        const dbusertocheck = await Users.findOne({ where: { publicusername: usernametosendemail }})
+        if (dbusertocheck) {
+        const useremail = dbusertocheck.email
+        const userinternalid = dbusertocheck.userid
+        
+        let transporter = nodemailer.createTransport({
+            host: "smtp-mail.outlook.com", // SMTP server address (usually mail.your-domain.com)
+            port: 587, // Port for SMTP (usually 465)
+            secure: false, // Usually true if connecting to port 465
+            auth: {
+                user: process.env.OUTLOOKUSERNAME, // Your email address
+                pass: process.env.OUTLOOKPASSWORD, // Password (for gmail, your app password)
+            },
+        });
+        console.log(process.env.OUTLOOKUSERNAME)
+        // Define and send message inside transporter.sendEmail() and await info about send from promise:
+        let info = await transporter.sendMail({
+            from: '"NS SBN Trial Blog" <' + process.env.OUTLOOKUSERNAME + '>',
+            to: useremail,
+            subject: "Reset your password",
+            html: `<p>Dear ${usernametosendemail}, <br> We recently received a request to reset the password for your account ${usernametosendemail}. To reset your password, please click on the following link : http://localhost:8080/resetpassword?id=${userinternalid} </p> <br> <p> Thank you for your attention to this matter. </p> <br> <p>Best regards,</p> <p> NS SBN Trial Blog</p>`
+        });
+            Users.update({ hasrequestedtoreset: 1 }, { where: { publicusername: usernametosendemail } })
+        reply.send('message sent')}
         else{
-            reply.status(401).send("unAuthorized");
-        }*/
+            reply.send('no user')
+        }
     })
 
     fastify.post('/logout', async function handler(request, reply) {
@@ -253,6 +283,22 @@ async function routes(fastify, options) {
             reply.redirect('/')
         }
     });
+
+    
+    fastify.post('/updatepassword', async function handler(request, reply) {
+        const username = request.body.username;
+        console.log(request.body);
+        const newpassword = request.body.newpassword;
+        bcrypt.genSalt(10, (err, salt) => {
+            bcrypt.hash(newpassword, salt, (err, hash) => {
+                if (err) throw err;
+                const hashedpw = hash;
+                Users.update({ password: hashedpw, hasrequestedtoreset :1}, {where: {publicusername:username}})
+            })
+        })
+        reply.send('update done')
+    })
+    
 
     fastify.get('/getsessioninfo', async function handler(request, reply) {
         return {login: request.session.authenticated, 

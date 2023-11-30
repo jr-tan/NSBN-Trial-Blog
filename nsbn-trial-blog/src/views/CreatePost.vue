@@ -3,30 +3,27 @@
   <NavbarVue>
 </NavbarVue>
     <div class="container">
-
+		<div class="card card-body">
+			<h2 class="text-center py-3"><strong>Create Post</strong></h2>
             <form @submit.prevent="Submitform">
                 <div class="text-danger"></div>
-
-                <div class="form-group">
-                    <label for="name">Tile</label>
+                <div class="form-group pb-2">
+                    <label class="pb-2">Title</label>
                     <input type="text" class="form-control" v-model = "titleInput" required>
                 </div>
 
-                <div class="form-group">
-                    <label for="name">Description</label>
-                    <textarea v-model = "descriptionInput" class="form-control"></textarea>
-
+                <div class="form-group pb-2">
+                    <label for="name" class="pb-2">Description</label>
+                    <textarea v-model = "descriptionInput" class="form-control" required></textarea>
                 </div>
-                
-                <div class="col-sm-10">
                     <button type="submit" class="btn btn-primary">Submit</button>
-                </div>
             </form>
-
+        </div>
         </div>
 </template>
 
 <script setup>
+    import NavbarVue from '../components/HeaderNFooter/NavBar.vue';
     import {ref} from 'vue';
     import axios from "axios"
     import { useRouter } from 'vue-router'
@@ -37,6 +34,7 @@
     const getuserinfo = ref(null);
     const userposted = ref('');
 
+    //checks if user is authenticated
     axios.get('http://localhost:8080/api/getprofileinfo')
         .then((response) => {getuserinfo.value = response.data
         console.log(getuserinfo.value)

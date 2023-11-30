@@ -8,32 +8,17 @@ const routes = [
     component: HomeView,
   },
   {
-    path: '/about',
-    name: 'about',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
-  },
-  {
     path: '/login',
     name: 'login',
+  // route level code - splitting
+  // this generates a separate chunk (about.[hash].js) for this route
+  // which is lazy-loaded when the route is visited.
     component: () => import(/* webpackChunkName: "about" */ '../views/user/LoginView.vue')
   },
   {
     path: '/register',
     name: 'register',
     component: () => import(/* webpackChunkName: "about" */ '../views/user/RegisterView.vue')
-  },
-  {
-    path: '/profile',
-    name: 'profile',
-    component: () => import(/* webpackChunkName: "about" */ '../views/user/ProfileView.vue')
-  },
-  {
-    path: '/admin/dashboard',
-    name: 'admindashboard',
-    component: () => import(/* webpackChunkName: "about" */ '../views/admin/DashboardView.vue')
   },
   {
     path: '/indpost/:id',
@@ -61,6 +46,16 @@ const routes = [
     component: () => import(/* webpackChunkName: "about" */ '../views/ErrorFourOThree.vue')
   },
   {
+    path: '/forgetpassword',
+    name: 'forgetpassword',
+    component: () => import(/* webpackChunkName: "about" */ '../views/user/ForgetPassword.vue')
+  },
+  {
+    path: '/resetpassword/:id',
+    name: 'resetpassword',
+    component: () => import(/* webpackChunkName: "about" */ '../views/user/ResetPassword.vue')
+  },
+  {
     path: '/deletecomment/:id',
     name: 'deletecomment',
     component: () => import(/* webpackChunkName: "about" */ '../views/DeleteComment.vue')
@@ -70,6 +65,11 @@ const routes = [
     name: 'editcomment',
     component: () => import(/* webpackChunkName: "about" */ '../views/EditComment.vue')
   },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'errorfourofour',
+    component: () => import(/* webpackChunkName: "about" */ '../views/ErrorFourOFour.vue')
+  }
 ]
 
 const router = createRouter({

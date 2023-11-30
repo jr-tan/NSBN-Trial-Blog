@@ -25,6 +25,10 @@ const Users = db.define('users', {
         defaultValue:'user',
         allowNull:false
     },
+    hasrequestedtoreset:{
+        type: Sequelize.INTEGER,
+        // 0 - No, 1- Yes 
+    }
 });
 
 /*

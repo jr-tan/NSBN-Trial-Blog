@@ -1,4 +1,6 @@
 <template>
+  <NavbarVue>
+</NavbarVue>
     <div class="container">
 
             <form @submit.prevent="Submitform">
@@ -15,16 +17,15 @@
 
                 </div>
                 
-                <div class="col-sm-10">
+                <p hidden ref="userPosted"></p>
                     <button type="submit" class="btn btn-primary">Submit</button>
-                </div>
             </form>
 
         </div>
 </template>
 
 <script setup>
-
+import NavbarVue from '../components/HeaderNFooter/NavBar.vue';
 import {ref} from 'vue';
 import axios from "axios";
 import { useRoute, useRouter } from 'vue-router'
@@ -37,30 +38,30 @@ const id = ref(route.params.id)
 const userPosted = ref('')
 const getuserinfo = ref(null)
 
-  axios.get('http://localhost:8080/api/getprofileinfo')
-    .then((response) => {getuserinfo.value = response.data
-    console.log(getuserinfo.value)
-        if (userPosted.value != getuserinfo.value.userid){
-            //bypass
-        }
-        else{
-            router.push({name: 'errorfourothree'})
-        }}
-      )
-
 let requestlink = ref('http://localhost:8080/api/getpost?idp='+id.value)
     axios.get(requestlink.value)
-.then((response) => {
-    posts.value = response.data
-    if (posts.value.length ==  1){
-        titleInput.value = posts.value[0].title
-        descriptionInput.value = posts.value[0].description
-        userPosted.value = posts.value[0].userPosted
+    .then((response) => {
+        posts.value = response.data[0]
+        if (posts.value){
+            titleInput.value = posts.value.title
+            descriptionInput.value = posts.value.description
+            userPosted.value = posts.value.userPosted
+            }
+        else{
+            router.push({name: 'errorfourofour'})
+        }
+        })
+
+//checks if op is the same as logged in user
+axios.get('http://localhost:8080/api/getprofileinfo')
+.then((response) => {getuserinfo.value = response.data
+    if (response.data.userid == getuserinfo.value.userid && response.data.isauthenticated == true){
+        //bypass
     }
     else{
-        router.push({name: 'home'});
-    }
-    })
+        router.push({name: 'errorfourothree'})
+    }}
+    )
 
 const titleInput = ref('');
 const descriptionInput = ref('');

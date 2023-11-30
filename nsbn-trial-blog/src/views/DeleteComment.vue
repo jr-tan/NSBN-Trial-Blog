@@ -6,13 +6,12 @@
 <script setup>
     import {ref} from 'vue';
     import axios from 'axios';
-    import { useRoute, useRouter } from 'vue-router';
+    import { useRoute } from 'vue-router';
     const route = useRoute();
     const id = ref(route.params.id);
 
-    const router = useRouter();
     console.log(id.value)
     axios.post('http://localhost:8080/api/deletecomment', {idp:id.value});
     console.log('dele');
-    router.push({name: 'home'});
+    window.location.href="http://localhost:8080/";
 </script>

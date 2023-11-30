@@ -25,6 +25,9 @@ const Posts = db.define('posts', {
     },
     ratings: {
         type: Sequelize.INTEGER
+    },
+    commentscount: {
+        type: Sequelize.INTEGER
     }
 });
 
