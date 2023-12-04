@@ -70,7 +70,8 @@ async function routes(fastify, options) {
     fastify.post('/deletePost', async function handler(request, reply) {
         const { idp } = request.query;
         Comments.destroy({ where: { postcommented: idp } });
-        setTimeout(() => { Posts.destroy({ where: { postid: idp } }) }, 2000);
+        Ratings.destroy({ where: { linktopostid: idp } })
+        Posts.destroy({ where: { postid: idp } }) 
     })
 
     //RATINGS
@@ -78,12 +79,12 @@ async function routes(fastify, options) {
         const { idp } = request.query;
         const userid = request.session.userid;
         //checks if user has rated on the post before 
-        checkifrated = await Ratings.findOne({ where: { postid: idp, userrated: userid } })
+        checkifrated = await Ratings.findOne({ where: { linktopostid: idp, userrated: userid } })
         if (checkifrated) {
             return "user rated";
         }
         else {
-            Ratings.create({ postid: idp, userrated: userid });
+            Ratings.create({ linktopostid: idp, userrated: userid });
         }
     })
 

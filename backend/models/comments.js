@@ -1,6 +1,8 @@
 const Sequelize = require('sequelize');
 const sequelize = require('../config/DBConfig');
 const db = require('../config/DBConfig');
+const Posts = require('./posts');
+const Users = require('./users');
 
 const Comments = db.define('comments', {
     commentsid: {
@@ -8,6 +10,7 @@ const Comments = db.define('comments', {
         primaryKey: true
     },
     postcommented: {
+        //fk in posts table
         type: Sequelize.INTEGER,
         model: 'posts',
         key: 'postid'
@@ -28,4 +31,25 @@ const Comments = db.define('comments', {
     }
 });
 
+
+
+Posts.hasMany(Comments, {
+    foreignKey : 'postcommented',
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE'
+});
+Comments.belongsTo(Posts, {
+    foreignKey: 'postcommented'
+});
+
+Users.hasMany(Comments, {
+    foreignKey: 'usercommented',
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE'
+});
+Comments.belongsTo(Users, {
+    foreignKey: 'usercommented'
+});
+
 module.exports = Comments;
+

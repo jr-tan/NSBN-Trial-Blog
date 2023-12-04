@@ -1,6 +1,7 @@
  const Sequelize = require('sequelize');
 const sequelize = require('../config/DBConfig');
 const db = require('../config/DBConfig'); 
+const Users = require('./users')
 
 const Posts = db.define('posts', {
     postid: {
@@ -23,7 +24,7 @@ const Posts = db.define('posts', {
     views: {
         type: Sequelize.INTEGER
     },
-    ratings: {
+    ratingscount: {
         type: Sequelize.INTEGER
     },
     commentscount: {
@@ -32,6 +33,15 @@ const Posts = db.define('posts', {
     isedited: {
         type: Sequelize.INTEGER
     }
+});
+
+Users.hasMany(Posts, {
+    foreignKey: 'userPosted',
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE'
+});
+Posts.belongsTo(Users, {
+    foreignKey: 'userPosted'
 });
 
 /*

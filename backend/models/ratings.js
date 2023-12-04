@@ -1,13 +1,16 @@
 const Sequelize = require('sequelize');
 const sequelize = require('../config/DBConfig');
 const db = require('../config/DBConfig');
+const Posts = require('./posts');
+const Users = require('./users');
 
 const Ratings = db.define('ratings', {
     ratingsid: {
         type: Sequelize.INTEGER,
         primaryKey: true
     },
-    postid: {
+    linktopostid: {
+        //fk in posts table
         type: Sequelize.INTEGER,
         model: 'posts',
         key: 'postid'
@@ -15,6 +18,24 @@ const Ratings = db.define('ratings', {
     userrated: {
         type: Sequelize.STRING
     },
+});
+
+Posts.hasMany(Ratings, {
+    foreignKey: 'linktopostid',
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE'
+});
+Ratings.belongsTo(Posts, {
+    foreignKey: 'linktopostid'
+});
+
+Users.hasMany(Ratings, {
+    foreignKey: 'userrated',
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE'
+});
+Ratings.belongsTo(Users, {
+    foreignKey: 'userrated'
 });
 
 /*

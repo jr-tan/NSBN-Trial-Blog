@@ -64,7 +64,7 @@
                 if (response.data == 'update done')
                 {
                     alert('Password has been reset successfully')
-                    router.push({name: 'home'})}
+                    router.push({name: 'login'})}
                 else{
                     alert('An error occured, please try again')
                 }})

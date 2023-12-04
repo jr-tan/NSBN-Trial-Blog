@@ -40,6 +40,7 @@
   const titlechange = ref('');
   const usernameifhave = ref('');
 
+
   onMounted(() => {
   //gets posts
   axios.get('http://localhost:8080/api/getpost')

@@ -24,10 +24,7 @@
 <script setup>
     import axios from "axios";
     import {ref} from 'vue';
-    import { useRouter } from 'vue-router';
-
-    const router = useRouter()
-
+    
     const topInput = ref('');
     const pwdInput = ref('');
 
@@ -41,7 +38,8 @@
             responseinfo.value = response.data
             console.log(responseinfo.value.outcome)
             if (responseinfo.value.outcome == 'success'){
-            router.push({name: 'home'})}
+                window.location.href = "http://localhost:8080/"
+            }
             else{
                 alert(responseinfo.value.outcome +', please try again')
             }
