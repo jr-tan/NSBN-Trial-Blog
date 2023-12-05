@@ -40,19 +40,18 @@ const test = defineProps({
     pullId : String,
     userId: String})
 
-axios.get('http://localhost:8080/api/getcomment?idp='+test.pullId)
-.then((response) => (comments.value = response.data));
+axios.get('/api/getcomment?idp='+test.pullId)
+    .then((response) => (comments.value = response.data));
 
 const Submitform = () =>{
-console.log(getuserid.value)
-axios.post('http://localhost:8080/api/createcomment', {commenttext: commentInput.value, usercommented:String(getuserid.value.innerHTML), postcommented:postid.value.innerHTML})
-window.location.reload();
+    axios.post('/api/createcomment', {commenttext: commentInput.value, usercommented:String(getuserid.value.innerHTML), postcommented:postid.value.innerHTML})
+    window.location.reload();
 }
 
 const deleteComment = (id) => {
-    let text = "Are you sure you want to delete your comment?"+id;
+    let text = "Are you sure you want to delete your comment?";
     if (confirm(text) == true) {
-        axios.post('http://localhost:8080/api/deletecomment',{idp:id})
+        axios.post('/api/deletecomment',{idp:id})
         .then(() => {  
             alert('comment deleted.')
             location.reload();

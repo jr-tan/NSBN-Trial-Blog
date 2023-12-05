@@ -1,7 +1,7 @@
 <template>
     <div class="container">
         <div class="card card-body">
-			<h2 class="text-center py-3"><strong>Edit Post</strong></h2>
+			<h2 class="text-center py-3"><strong>Edit comment</strong></h2>
             <form @submit.prevent="Submitform">
                     <p ref="postid" hidden>{{id}}</p>
                     <textarea v-model = "commentInput" class="form-control"></textarea>
@@ -13,39 +13,34 @@
 </template>
 
 <script setup>
-    import {ref} from 'vue';
+    import {onBeforeMount, ref} from 'vue';
     import axios from 'axios';
-    import { useRoute, useRouter } from 'vue-router';
+    import { useRoute } from 'vue-router';
     const route = useRoute();
     const id = ref(route.params.id);
-    const comments = ref(null);
-    const getuserinfo = ref(null);
     const commentInput = ref('');
-    const usercommented = ref('');
-    const router = useRouter();
 
-    //checks if op is the same as logged in user
-    axios.get('http://localhost:8080/api/getprofileinfo')
-    .then((response) => {getuserinfo.value = response.data
-        if (response.data.userid == getuserinfo.value.userid && response.data.outcome == "authenticated"){
-            //bypass
-        }
-        else{
-            router.push({name: 'errorfourothree'})
-        }}
-        )
-
-    axios.get('http://localhost:8080/api/getcomment?commentid='+id.value)
-    .then((response) => {comments.value = response.data[0]
-    if (comments.value){
-    commentInput.value = comments.value.commenttext
-    usercommented.value = comments.value.usercommented}
-    else{
-        router.push({name: 'errorfourothree'})
-    }});
+    onBeforeMount(() => {
+        axios.get('/api/getcomment?commentid='+id.value)
+        .then ((response) => {
+            if (response.data[0]){
+                //get profile to check if its the same user as op
+                axios.get('/api/getprofileinfo')
+                    .then((profileresponse) => {
+                        if (profileresponse.data.userid == response.data[0].usercommented && profileresponse.data.outcome=="authenticated"){
+                            return 'use'
+                        } else{
+                            window.location.href= "/error403"
+                        }
+                    })
+            }else{
+                window.location.href = "/errorfourofour"
+            }
+        })
+    })
 
     const Submitform = () =>{
-        axios.post('http://localhost:8080/api/updatecomment?idp='+id.value, {newcomment:commentInput.value})
-        router.push({name: 'home'})
+        axios.post('/api/updatecomment?idp='+id.value, {newcomment:commentInput.value})
+        window.location.href="/"
     }
 </script>

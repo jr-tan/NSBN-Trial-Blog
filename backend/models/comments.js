@@ -52,4 +52,3 @@ Comments.belongsTo(Users, {
 });
 
 module.exports = Comments;
-

@@ -18,12 +18,9 @@
 <script setup>
     import axios from "axios";
     import {ref} from 'vue';
-    import { useRouter, useRoute } from 'vue-router';
-
-    const router = useRouter()
+    import {useRoute } from 'vue-router';
     const route = useRoute()
 
-    const LoggedInInfo = ref('')
     const Userinfo = ref('');
     const Username = ref('');
     const Password = ref('');
@@ -31,22 +28,21 @@
     const id = ref(route.params.id);
 
      //checks if user is authenticated
-    axios.get('http://localhost:8080/api/getprofileinfo')
-        .then((response) => {LoggedInInfo.value = response.data})
-    
-    axios.get('http://localhost:8080/api/getuserbyid?idp='+id.value)
+    axios.get('/api/getuserbyid?idp='+id.value)
     .then((response) => { 
-    console.log(response.data)
-    console.log(response.data.hasrequestedtoreset)
-    if (response.data == "no user"){
-        router.push({name: "errorfourofour"})}
-    else{
-        Userinfo.value = response.data
-        Username.value = response.data.publicusername
-        if (response.data.hasrequestedtoreset==0){
-            if (response.data.publicusername != LoggedInInfo.value.userid){
-            router.push({name: "errorfourofour"})
-            }}}})
+        if (response.data == "no user"){
+            window.location.href = "/errorfourofour"}
+        else{
+            Userinfo.value = response.data
+            Username.value = response.data.publicusername}
+        if (response.data.hasrequestedtoreset == 0){
+            axios.get('/api/getprofileinfo')
+            .then((sessionresponse) => {
+                if (response.data.publicusername != sessionresponse.data.userid){
+                    window.location.href = "/errorfourofour"
+                }
+            })
+        }})
     //submits for login and checks
 
     const Submitform = () => {
@@ -55,16 +51,16 @@
         const pwdregex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,10}$/;
         //8-10 chars, at least 1 uppercase, 1 lowecase, 1 number, 1 special character
         const checkmatches = pwdregex.test(Password.value)
-        console.log(checkmatches)
         if (checkmatches == false){
             ErrorforPassword.value = 'Password must meet the following : 8-10 chars, at least 1 uppercase, 1 lowecase, 1 number, 1 special character'}
         else{
-            axios.post('http://localhost:8080/api/updatepassword', {username : Userinfo.value.publicusername, newpassword:Password.value})
+            axios.post('/api/updatepassword', {username : Userinfo.value.publicusername, newpassword:Password.value})
             .then((response) => {
                 if (response.data == 'update done')
                 {
                     alert('Password has been reset successfully')
-                    router.push({name: 'login'})}
+                    window.location.href= "/login"
+                }
                 else{
                     alert('An error occured, please try again')
                 }})

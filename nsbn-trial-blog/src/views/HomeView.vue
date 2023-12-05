@@ -8,7 +8,7 @@
                   <div>
                     <h3 class="card-title"><strong><b>{{item.title}}</b></strong></h3>
                       <p>
-                          <span class="float-right">By <strong>{{item.userPosted}}</strong> | <i class="fa fa-eye"></i> {{item.views}} | <i class="fa fa-thumbs-up"></i> {{item.ratings}} | <i class="fa fa-comment"></i> {{item.commentscount}}</span>
+                          <span class="float-right">By <strong>{{item.userPosted}}</strong> | <i class="fa fa-eye"></i> {{item.views}} | <i class="fa fa-thumbs-up"></i> {{item.ratingscount}} | <i class="fa fa-comment"></i> {{item.commentscount}}</span>
                       </p>
                       <p style="   overflow: hidden;
                               text-overflow: ellipsis;
@@ -33,34 +33,30 @@
 
 
 <script setup>
-  import axios from "axios"
   import {onMounted, ref} from 'vue'
+  import axios from "axios";
   const posts = ref(null);
-  const getuserinfo = ref(null);
   const titlechange = ref('');
   const usernameifhave = ref('');
 
-
   onMounted(() => {
-  //gets posts
-  axios.get('http://localhost:8080/api/getpost')
-    .then((response) => {
-      console.log("fetching posts")
-      posts.value = response.data});})
-
   //gets information of user logged in, and reflect the user's name accordingly
-  axios.get('http://localhost:8080/api/getprofileinfo')
-    .then((response) => {
-      getuserinfo.value = response.data
-      //console.log(getuserinfo.value);
-      if (getuserinfo.value.outcome == 'authenticated'){
-        if (getuserinfo.value.role == "user"){
-          usernameifhave.value = getuserinfo.value.userid;}
-        else{
-        usernameifhave.value = getuserinfo.value.userid + ' (admin)';
-        }
-      }
-  });
+    axios.get('/api/getprofileinfo')
+      .then((response) => {
+        let output = response.data
+        if (output.outcome == 'authenticated'){
+        if (output.role == "user"){
+          usernameifhave.value = output.userid;}
+        else{3
+        usernameifhave.value = output.userid + ' (admin)';
+        }}
+      })
+    
+    //gets posts
+    axios.get('/api/getpost')
+      .then((response) => {
+        posts.value = response.data
+      })
 
-
+  })
 </script>

@@ -17,20 +17,17 @@
 <script setup>
     import axios from "axios";
     import {ref} from 'vue';
-    import { useRouter } from 'vue-router';
-
-    const router = useRouter()
 
     const Username = ref('');
 
 
     //submits for login and checks
     const Submitform = () => {
-        axios.post('http://localhost:8080/api/changepasswordrequest', {userid : Username.value})
+        axios.post('/api/changepasswordrequest', {userid : Username.value})
         .then((response) => {
             if (response.data == 'message sent'){
                 alert('email has been sent, check your inbox')
-                router.push({name: 'home'})}
+                window.location.href= "/";}
             else{
                 alert('An error occured, please try again')
             }

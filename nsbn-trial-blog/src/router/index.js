@@ -56,11 +56,6 @@ const routes = [
     component: () => import(/* webpackChunkName: "about" */ '../views/user/ResetPassword.vue')
   },
   {
-    path: '/deletecomment/:id',
-    name: 'deletecomment',
-    component: () => import(/* webpackChunkName: "about" */ '../views/DeleteComment.vue')
-  },
-  {
     path: '/editcomment/:id',
     name: 'editcomment',
     component: () => import(/* webpackChunkName: "about" */ '../views/EditComment.vue')

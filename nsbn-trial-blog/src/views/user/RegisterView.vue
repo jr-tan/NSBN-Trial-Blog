@@ -39,9 +39,6 @@
 <script setup>
 import {ref} from 'vue';
 import axios from "axios";
-import { useRouter } from 'vue-router'
-
-const router = useRouter()
 
 	const ErrorforPassword = ref('');
 	const passwordInput = ref('');
@@ -77,8 +74,8 @@ const Submitform = () => {
 	console.log(readytoSubmit)
 	console.log('form will be submiited')
 
-	axios.post('http://localhost:8080/api/createuser', {username:usernameInput.value, userbio:descriptionInput.value, email:emailInput.value, password:passwordInput.value})
-	.then(router.push({name: 'login'}))
+	axios.post('/api/createuser', {username:usernameInput.value, userbio:descriptionInput.value, email:emailInput.value, password:passwordInput.value})
+	.then(window.location.href="/login")
 	}}
 
 </script>

@@ -22,38 +22,27 @@
 <script setup>
     import {ref} from 'vue';
     import axios from "axios"
-    import { useRouter } from 'vue-router'
 
-    const router = useRouter();
     const titleInput = ref('');
     const descriptionInput = ref('');
-    const getuserinfo = ref(null);
     const userposted = ref('');
 
     //checks if user is authenticated
-    axios.get('http://localhost:8080/api/getprofileinfo')
-        .then((response) => {getuserinfo.value = response.data
-        console.log(getuserinfo.value);
-            if (getuserinfo.value.outcome == "authenticated"){
-                userposted.value = getuserinfo.value.userid;
+    axios.get('/api/getprofileinfo')
+        .then((response) => {
+            if (response.data.outcome == "authenticated"){
+                userposted.value = response.data.userid;
             }
             else{
-                router.push({name: 'errorfourothree'});
+                window.location.href = "/error403";
             }}
         )
         
-
-
 const Submitform = () => {
     console.log(titleInput.value)
-    axios.post('http://localhost:8080/api/createpost', {title:titleInput.value, description:descriptionInput.value, userposted: userposted.value})
-    .then((response) => {
-    console.log(response);
-    alert('post created');
-    router.push({name: 'home'});
-    })
-    .catch(error => console.log(error));
+    axios.post('/api/createpost', {title:titleInput.value, description:descriptionInput.value, userposted: userposted.value})
+        .then(alert('post created'))
+        .then(window.location.href="/")
+        .catch(error => console.log(error));
 }
-
-
 </script>

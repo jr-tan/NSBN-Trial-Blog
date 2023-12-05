@@ -5,11 +5,7 @@
 </template>
 
 <script setup>
-    import { useRouter } from 'vue-router';
-
-    const router = useRouter()
-
-const gohome = () => {
- router.push({name: 'home'})
-}
+    const gohome = () => {
+      window.location.href = "/"
+    }
 </script>

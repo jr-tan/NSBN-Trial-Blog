@@ -28,17 +28,14 @@
     const topInput = ref('');
     const pwdInput = ref('');
 
-    console.log(topInput.value)
-
     //submits for login and checks
     const Submitform = () => {
-        axios.post('http://localhost:8080/api/login', {topinput : topInput.value, passwordinput:pwdInput.value})
+        axios.post('/api/login', {topinput : topInput.value, passwordinput:pwdInput.value})
         .then((response) => {
             let responseinfo = ref(null)
             responseinfo.value = response.data
-            console.log(responseinfo.value.outcome)
             if (responseinfo.value.outcome == 'success'){
-                window.location.href = "http://localhost:8080/"
+                window.location.href = "/"
             }
             else{
                 alert(responseinfo.value.outcome +', please try again')
