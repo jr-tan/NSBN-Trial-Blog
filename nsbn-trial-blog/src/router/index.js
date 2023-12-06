@@ -61,6 +61,11 @@ const routes = [
     component: () => import(/* webpackChunkName: "about" */ '../views/EditComment.vue')
   },
   {
+    path: '/admin/usertables',
+    name: 'usertables',
+    component: () => import(/* webpackChunkName: "about" */ '../views/admin/userTables.vue')
+  },
+  {
     path: '/:pathMatch(.*)*',
     name: 'errorfourofour',
     component: () => import(/* webpackChunkName: "about" */ '../views/errors/ErrorFourOFour.vue')

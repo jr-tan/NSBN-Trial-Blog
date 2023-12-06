@@ -45,6 +45,12 @@ async function routes(fastify, options) {
         return filteredposts;
     })
 
+    fastify.get('/getpostbyusername', async function handler(request,reply){
+        let {idp} = request.query
+        let postset = await Posts.findAll({where : {userPosted : idp}})
+        return postset
+    })
+
     fastify.post('/updatePost', async function handler(request, reply) {
         const newPost = request.body;
         const test = newPost.title;
@@ -69,8 +75,8 @@ async function routes(fastify, options) {
     
     fastify.post('/deletePost', async function handler(request, reply) {
         const { idp } = request.query;
-        Comments.destroy({ where: { postcommented: idp } });
-        Ratings.destroy({ where: { linktopostid: idp } })
+        //Comments.destroy({ where: { postcommented: idp } });
+        //Ratings.destroy({ where: { linktopostid: idp } })
         Posts.destroy({ where: { postid: idp } }) 
     })
 
@@ -97,7 +103,7 @@ async function routes(fastify, options) {
             Posts.update({ views: originalviewcount + 1 },  { where: { postid: idp } })
         }
         catch{reply.send('no posts')};
-    })  
+    })      
 
     fastify.post('/createuser', async function handler(request, reply) {
         const newUser = request.body;
@@ -211,6 +217,11 @@ async function routes(fastify, options) {
         else {
             reply.send('no user')
         }
+    })
+
+    fastify.get('/getuser', async function handler(request, reply) {
+        const userobject = await Users.findAll({ order: [['userid', 'DESC']] });
+        return userobject;
     })
 
     //request to change password email
