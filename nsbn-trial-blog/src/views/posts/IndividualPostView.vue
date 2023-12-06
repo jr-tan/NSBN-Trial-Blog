@@ -41,6 +41,10 @@
     const commentcount = ref(null);
     const edited = ref(null);
     const ratings = ref(null);
+    const userPerms = ref(0);
+    /* 0 - Not Logged In
+    1 - Logged in but not same user
+    2 - Same user as OP*/
 
     const id = ref(route.params.id);
 
@@ -60,6 +64,7 @@
         //gets session status
         axios.get('/api/getprofileinfo')
         .then((response) => {
+             currentuser.value = response.data.userid;
             if (response.data.outcome== 'authenticated'){
                 if (response.data.role != "admin"){
                     //user role is not admin
@@ -67,10 +72,13 @@
                         //user posted value is not userid
                         //user posted is not the same
                         document.getElementById('deletebutton').remove();
-                        document.getElementById('editbutton').remove();                    }
+                        document.getElementById('editbutton').remove();
+                        userPerms.value = 1;
+                        }
+                    else{userPerms.value = 2;}
                 }
+                else{userPerms.value = 2;}
                     document.getElementById('nologin').remove();
-                    currentuser.value = response.data.userid;
                 }
                 else{
                     document.getElementById('loggedin').remove();
@@ -98,21 +106,26 @@
 
 //redirects to edit post page
 const editPost = () => {
-    router.push('../editpost/'+id.value)
+    if (userPerms.value == 2){
+    router.push('../editpost/'+id.value)}
 }
 
 //delete post, will show warning before deleting post
 const deletePost = () => {
     let text = "Are you sure you want to delete your post?";
-    if (confirm(text) == true) {
+    if (userPerms.value == 2){
+        if (confirm(text) == true) {
         axios.post('/api/deletePost?idp='+id.value)
         .then(() => {alert('post deleted.' )
          window.location.href = "/"
         })
-    }}
+    }
+    }
+    }
 
 //post rating feature
 const ratePost = () => {
+    if (userPerms.value == 1){
     axios.post('/api/ratepost?idp='+id.value)
     .then((outcome) => {
         if (outcome.data == "user rated"){
@@ -120,8 +133,7 @@ const ratePost = () => {
         }else{
             window.location.reload();
         }
-    }
-    )
+    })}
 }
 
 </script>   

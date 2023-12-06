@@ -272,11 +272,11 @@ async function routes(fastify, options) {
                     reply.status(500)
                     reply.send('Internal Server Error')
                 } else {
-                    reply.redirect('/')
+                    reply.redirect("/")
                 }
             })
         } else {
-            reply.redirect('/')
+            reply.redirect("/")
         }
     });
 

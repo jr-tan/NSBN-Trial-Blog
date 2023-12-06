@@ -35,10 +35,18 @@ const userPosted = ref('')
 const titleInput = ref('');
 const descriptionInput = ref('');
 
-function setValues(responsedata){
-    titleInput.value = responsedata.title;
-    descriptionInput.value = responsedata.description;
-    userPosted.value = responsedata.userPosted;
+function verifyAuthnSetValues(responsedata){
+    axios.get('/api/getprofileinfo')
+        .then ((profileresponse) => {
+        if (profileresponse.data.userid == responsedata.userPosted && profileresponse.data.outcome == "authenticated"){  
+            //set values
+            titleInput.value = responsedata.title;
+            descriptionInput.value = responsedata.description;
+            userPosted.value = responsedata.userPosted;
+        }
+        else{
+            window.location.href="/error403"
+        }}) 
 }
 
 onBeforeMount(() => {
@@ -47,15 +55,7 @@ axios.get('/api/getpost?idp='+id.value)
 .then((response) => {
     if (response.data[0]){
         //get profile to check if its the same user as op
-        axios.get('/api/getprofileinfo')
-            .then ((profileresponse) => {
-            if (profileresponse.data.userid == response.data[0].userPosted && profileresponse.data.outcome == "authenticated"){
-                setValues(response.data[0])
-            }
-            else{
-                window.location.href="/error403"
-            }
-    })
+        verifyAuthnSetValues(response.data[0])
     }
     else{
         window.location.href="/error404"

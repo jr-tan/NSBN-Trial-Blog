@@ -20,19 +20,23 @@
     const id = ref(route.params.id);
     const commentInput = ref('');
 
+    function verifyAuthnSetValues(responsedata){
+        axios.get('/api/getprofileinfo')
+        .then((profileresponse) => {
+            if (profileresponse.data.userid == responsedata.usercommented && profileresponse.data.outcome=="authenticated"){
+                commentInput.value = responsedata.commenttext
+            } else{
+                window.location.href= "/error403"
+            }
+        })
+    }
+
     onBeforeMount(() => {
         axios.get('/api/getcomment?commentid='+id.value)
         .then ((response) => {
             if (response.data[0]){
                 //get profile to check if its the same user as op
-                axios.get('/api/getprofileinfo')
-                    .then((profileresponse) => {
-                        if (profileresponse.data.userid == response.data[0].usercommented && profileresponse.data.outcome=="authenticated"){
-                            return 'use'
-                        } else{
-                            window.location.href= "/error403"
-                        }
-                    })
+                verifyAuthnSetValues(response.data[0])
             }else{
                 window.location.href = "/errorfourofour"
             }
