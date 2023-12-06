@@ -32,17 +32,22 @@ async function routes(fastify, options) {
         })
     })
 
+    //note to self - rewrite the function for this whole get post functions, use findAndCountAll()
     fastify.get('/getpost', async function handler(request, reply){
         //posts are sorted by date first in descending order, then by views in ascending order
         let postset = await Posts.findAll({order: [['postid','DESC'],['views','ASC'], ]});
         postset = JSON.stringify(postset);
         postset = JSON.parse(postset);
-        //console.log(postset);
-
         const { idp } = request.query;
-        if (!idp) return postset;
+        const { paginatefive } = request.query
+        if (!idp) return postset.slice(((paginatefive-1) * 5), (paginatefive * 5));
         const filteredposts = postset.filter((postset) => postset.postid == idp);
-        return filteredposts;
+        return { content: filteredposts};
+    })
+
+    fastify.get('/gettotalpagescount', async function handler(request, reply){
+        let postcount = await Posts.count({attributes: [[sequelize.fn('COUNT', 0), 'count']]})
+        return postcount;
     })
 
     fastify.get('/getpostbyusername', async function handler(request,reply){

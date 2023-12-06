@@ -27,17 +27,61 @@
       </div>
   </div>
   <br>
+  <div class="mb-2">
+    <button class="btn btn-info" id="deletebutton" v-if="paginatenumber>1" @click="getList('Down')"><i class="fa fa-arrow" aria-hidden="true"></i>Previous </button>
+    <button class="btn btn-info" id="deletebutton" v-if="LastEntry==true" @click="getList('Up')"><i class="fa fa-arrow" aria-hidden="true"></i>Next </button>
+  </div>
 </template>
+
 <script setup>
     import axios from "axios";
-    import {ref} from 'vue';
+    import {onBeforeMount, ref} from 'vue';
     const posts = ref(null);
+    let paginatenumber = ref(1);
+    let totalpages = ref(0);
+    let LastEntry = ref(false);
+    var lastClick = 0;
+    var delay = 20;
     //let route = useRoute();
     //axios.get('/getpostbyusername?idp='+route)
     //gets posts
-    axios.get('/api/getpost')
-      .then((response) => {
-        posts.value = response.data
-      })
+  
+    const getList = (UporDown) => {
+      if (lastClick >= (Date.now() - delay))
+        return;
+      lastClick = Date.now();
+      switch (UporDown){
+        case 'Up':
+          paginatenumber.value = paginatenumber.value + 1
+          break;
+        case 'Down':
+          paginatenumber.value = paginatenumber.value - 1
+          break;
+        case 'Load':
+          paginatenumber.value = 1
+          break;
+      }
+      axios.get('/api/getpost?paginatefive='+paginatenumber.value)
+        .then((response) => {
+          posts.value = response.data
+          if (paginatenumber.value == totalpages.value){
+            LastEntry.value = false
+          }else{
+            LastEntry.value = true
+          }
+        })
+      
+      }
 
+    function getTotalPages(){
+      axios.get('/api/gettotalpagescount')
+      .then((response) => {totalpages.value = Math.ceil(response.data/5)
+    console.log(totalpages.value)
+      })
+    }
+
+    onBeforeMount( async () =>{
+    getTotalPages()
+    getList('Load')
+    })
 </script>
