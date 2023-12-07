@@ -56,6 +56,16 @@ const routes = [
     component: () => import(/* webpackChunkName: "about" */ '../views/user/ResetPassword.vue')
   },
   {
+    path: '/profile/:id',
+    name: 'userprofile',
+    component: () => import(/* webpackChunkName: "about" */ '../views/user/UserProfile.vue')
+  },
+  {
+    path: '/editbio/:id',
+    name: 'editbio',
+    component: () => import(/* webpackChunkName: "about" */ '../views/user/EditBio.vue')
+  },
+  {
     path: '/editcomment/:id',
     name: 'editcomment',
     component: () => import(/* webpackChunkName: "about" */ '../views/EditComment.vue')

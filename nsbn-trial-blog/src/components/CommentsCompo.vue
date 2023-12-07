@@ -18,7 +18,7 @@
     <div v-for="item in comments" v-bind:key="item">
         <hr>
         <h5 class="container"><strong>{{item.commenttext}}</strong></h5>
-        <p>By {{item.usercommented}} | {{item.datecommented}}  <a v-if="item.isedited==1">(edited)</a></p>
+        <p>By <router-link :to="{name: 'userprofile',params: { id:item.usercommented}}">{{item.usercommented}}</router-link> | {{item.datecommented}}  <a v-if="item.isedited==1">(edited)</a></p>
         <p hidden>{{item.commentsid}}</p>
         <router-link :to="{name: 'editcomment',params: { id:item.commentsid}}"><button class="btn btn-warning" v-if="item.usercommented == test.userId" href=""><i class="fa fa-edit" aria-hidden="true"></i>Edit</button></router-link>
         <button class="btn btn-danger" v-if="item.usercommented == test.userId" @click="deleteComment(item.commentsid)"><i class="fas fa-trash"></i>Delete</button>

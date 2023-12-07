@@ -28,7 +28,7 @@
     const userposted = ref('');
 
     //checks if user is authenticated
-    axios.get('/api/getprofileinfo')
+    axios.get('/api/getsessioninfo')
         .then((response) => {
             if (response.data.outcome == "authenticated"){
                 userposted.value = response.data.userid;

@@ -1,7 +1,7 @@
 <template>
 <div class="mx-auto">
     <h1><strong>{{title}}</strong></h1>
-    <i>Posted by {{userPosted}}</i> <a v-if="edited==1"><i> (edited)</i></a>
+    <i>Posted by <router-link :to="{name: 'userprofile',params: { id:userPosted}}">{{userPosted}}</router-link></i> <a v-if="edited==1"><i> (edited)</i></a>
     <br>
     <p>Posted on {{datePosted}} | {{ratings}} Likes</p>
     <h4>{{description}}</h4>
@@ -62,7 +62,7 @@
     //removes buttons/divs depending on user
     function renderbyrole(userPosted){
         //gets session status
-        axios.get('/api/getprofileinfo')
+        axios.get('/api/getsessioninfo')
         .then((response) => {
              currentuser.value = response.data.userid;
             if (response.data.outcome== 'authenticated'){

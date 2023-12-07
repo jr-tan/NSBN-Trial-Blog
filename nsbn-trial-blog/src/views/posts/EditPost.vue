@@ -36,7 +36,7 @@ const titleInput = ref('');
 const descriptionInput = ref('');
 
 function verifyAuthnSetValues(responsedata){
-    axios.get('/api/getprofileinfo')
+    axios.get('/api/getsessioninfo')
         .then ((profileresponse) => {
         if (profileresponse.data.userid == responsedata.userPosted && profileresponse.data.outcome == "authenticated"){  
             //set values

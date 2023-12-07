@@ -20,7 +20,6 @@ async function routes(fastify, options) {
         const title = newPost.title;
         const description = newPost.description;
         const userPosted = newPost.userposted
-        //console.log(title);
         Posts.create({
             title: title,
             description:description,
@@ -32,28 +31,40 @@ async function routes(fastify, options) {
         })
     })
 
-    //note to self - rewrite the function for this whole get post functions, use findAndCountAll()
     fastify.get('/getpost', async function handler(request, reply){
         //posts are sorted by date first in descending order, then by views in ascending order
-        let postset = await Posts.findAll({order: [['postid','DESC'],['views','ASC'], ]});
+        let postset = await Posts.findAndCountAll({order: [['postid','DESC'],['views','ASC'], ]});
         postset = JSON.stringify(postset);
         postset = JSON.parse(postset);
         const { idp } = request.query;
         const { paginatefive } = request.query
-        if (!idp) return postset.slice(((paginatefive-1) * 5), (paginatefive * 5));
-        const filteredposts = postset.filter((postset) => postset.postid == idp);
-        return { content: filteredposts};
-    })
-
-    fastify.get('/gettotalpagescount', async function handler(request, reply){
-        let postcount = await Posts.count({attributes: [[sequelize.fn('COUNT', 0), 'count']]})
-        return postcount;
-    })
-
-    fastify.get('/getpostbyusername', async function handler(request,reply){
-        let {idp} = request.query
-        let postset = await Posts.findAll({where : {userPosted : idp}})
-        return postset
+        const {username} = request.query
+        const postsetdata = postset.rows
+        const postsetcount = postset.count
+        if (!idp){
+            //paginate by 5
+            if (!username){
+                //throw all lists back
+                return {
+                    count: postsetcount, 
+                    rows: postsetdata.slice(((paginatefive - 1) * 5), (paginatefive * 5))
+                };
+            }
+            else{
+                //throw only the specific username back
+                const filteredposts = postsetdata.filter((postsetdata) => postsetdata.userPosted == username)
+                const paginatedandfilteredposts = filteredposts.slice(((paginatefive - 1) * 5), (paginatefive * 5))               
+                return {
+                    count: filteredposts.length,
+                    rows: paginatedandfilteredposts
+                }
+            }
+        }else{
+            //throw only the one id back
+            const filteredposts = postsetdata.filter((postsetdata) => postsetdata.postid == idp);
+            console.log(filteredposts);
+            return filteredposts;
+        }
     })
 
     fastify.post('/updatePost', async function handler(request, reply) {
@@ -197,36 +208,41 @@ async function routes(fastify, options) {
     })
 
     //gets session info
-    fastify.get('/getprofileinfo', async function handler(request, reply) {
+    fastify.get('/getsessioninfo', async function handler(request, reply) {
         if (request.session.authenticated) {
-            console.log('logged in')
-            console.log(request.session.userrole)
             return { outcome: 'authenticated', userid: request.session.userid, role: request.session.userrole }
         } else {
             console.log('nth')
-            return { outcome: 'no perms', userid: '', role: '' }
-        }
-    })
-
-    fastify.get('/getuserbyid', async function handler(request, reply) {
-        //*id meaning the id called by the database, not the public username
-        //this is used specifically for the reset password page to get information
-        const { idp } = request.query
-        console.log('idp as' + idp)
-        const userobject = await Users.findOne({ where: { userid: idp } });
-        console.log(userobject)
-        if (userobject) {
-            //sends back user information
-            reply.send(userobject)
-        }
-        else {
-            reply.send('no user')
+            return { outcome: 'no perms', userid: '', role: 'not logged in' }
         }
     })
 
     fastify.get('/getuser', async function handler(request, reply) {
-        const userobject = await Users.findAll({ order: [['userid', 'DESC']] });
-        return userobject;
+        const { internalid } = request.query
+        const { publicusername } = request.query
+        //*id meaning the id called by the database, not the public username
+        //this is used specifically for the reset password page to get information
+
+        if (!internalid){
+            let userobject = null
+            if (!publicusername){
+                userobject = await Users.findAll({ order: [['userid', 'DESC']] });}
+            else{
+                userobject = await Users.findOne({where: {publicusername : publicusername}});
+            }
+            reply.send(userobject);          
+        }
+        else{
+            const userobject = await Users.findOne({ where: { userid: internalid } });
+            console.log(userobject)
+            if (userobject) {
+                //sends back user information
+                reply.send(userobject)
+            }
+            else {
+                reply.send('no user')
+            }
+        }
     })
 
     //request to change password email
@@ -296,13 +312,12 @@ async function routes(fastify, options) {
         }
     });
 
-    /*temporary comment - not sure if this is still used
-    fastify.get('/getsessioninfo', async function handler(request, reply) {
-        return {
-            login: request.session.authenticated,
-            token: request.session.token
-        }
-    })*/
+    fastify.post('/updatebio', async function handler(request, reply){
+        const requestbody = request.body;
+        const publicusernametoupdate = requestbody.publicusername;
+        const newbio = requestbody.newbio;
+        Users.update({ userbio: newbio }, { where: { publicusername: publicusernametoupdate }});
+    })
 
     // COMMWENTS
     fastify.post('/createcomment', async function handler(request, reply){

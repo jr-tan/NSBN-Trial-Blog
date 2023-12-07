@@ -1,7 +1,7 @@
 <template>
 	<div class="col-md-6 mx-auto">
 		<div class="card card-body">
-            <h2 class="py-3"><strong>Reset Password</strong></h2>
+            <h2 class="py-3"><strong>Change Password</strong></h2>
 			<div class="alert alert-danger" role="alert" v-if ="ErrorforPassword"  > {{ErrorforPassword}} </div>
             <form @submit.prevent="Submitform">
                 <div class="text-danger"></div>
@@ -28,7 +28,7 @@
     const id = ref(route.params.id);
 
      //checks if user is authenticated
-    axios.get('/api/getuserbyid?idp='+id.value)
+    axios.get('/api/getuser?internalid='+id.value)
     .then((response) => { 
         if (response.data == "no user"){
             window.location.href = "/errorfourofour"}
@@ -36,7 +36,7 @@
             Userinfo.value = response.data
             Username.value = response.data.publicusername}
         if (response.data.hasrequestedtoreset == 0){
-            axios.get('/api/getprofileinfo')
+            axios.get('/api/getsessioninfo')
             .then((sessionresponse) => {
                 if (response.data.publicusername != sessionresponse.data.userid){
                     window.location.href = "/errorfourofour"

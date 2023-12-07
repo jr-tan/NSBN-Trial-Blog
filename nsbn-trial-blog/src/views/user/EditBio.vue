@@ -1,10 +1,10 @@
 <template>
     <div class="container">
         <div class="card card-body">
-			<h2 class="text-center py-3"><strong>Edit comment</strong></h2>
+			<h2 class="text-center py-3"><strong>Edit biography</strong></h2>
             <form @submit.prevent="Submitform">
                     <p ref="postid" hidden>{{id}}</p>
-                    <textarea v-model = "commentInput" class="form-control"></textarea>
+                    <textarea v-model = "newbioInput" class="form-control"></textarea>
                     <button id="butAddVideo" type="submit" class="btn btn-primary mt-3">Post
                     </button>
             </form>   
@@ -18,13 +18,13 @@
     import { useRoute } from 'vue-router';
     const route = useRoute();
     const id = ref(route.params.id);
-    const commentInput = ref('');
+    const newbioInput = ref('');
 
     function verifyAuthnSetValues(responsedata){
         axios.get('/api/getsessioninfo')
         .then((profileresponse) => {
-            if (profileresponse.data.userid == responsedata.usercommented && profileresponse.data.outcome=="authenticated"){
-                commentInput.value = responsedata.commenttext
+            if (profileresponse.data.userid == responsedata.publicusername && profileresponse.data.outcome=="authenticated"){
+                newbioInput.value = responsedata.userbio
             } else{
                 window.location.href= "/error403"
             }
@@ -32,11 +32,11 @@
     }
 
     onBeforeMount(() => {
-        axios.get('/api/getcomment?commentid='+id.value)
+        axios.get('/api/getuser?publicusername='+id.value)
         .then ((response) => {
-            if (response.data[0]){
-                //get session info to check if its the same user as op
-                verifyAuthnSetValues(response.data[0])
+            if (response.data){
+                //get session info to check if its the same user
+                verifyAuthnSetValues(response.data)
             }else{
                 window.location.href = "/errorfourofour"
             }
@@ -44,7 +44,7 @@
     })
 
     const Submitform = () =>{
-        axios.post('/api/updatecomment?idp='+id.value, {newcomment:commentInput.value})
+        axios.post('/api/updatebio', {publicusername:id.value, newbio:newbioInput.value})
         window.location.href="/"
     }
 </script>

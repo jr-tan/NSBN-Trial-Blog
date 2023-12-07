@@ -1,17 +1,21 @@
 <template>
+<div class="pb-3">
 <h1><strong> Manage users </strong></h1>
+<a> Click on the username to access the profile page, and make various changes for the user. </a>
+</div>
 <table>
   <tr>
     <th>Username</th>
     <th>Email</th>
     <th>Role</th>
-    <th>Link</th>
+    <th>Status</th>
   </tr>
   <tr v-for="item in userlist" v-bind:key="item">
-    <td>{{item.publicusername}}</td>
+    <td><strong><router-link :to="{name: 'userprofile',params: { id:item.publicusername}}">{{item.publicusername}}</router-link></strong> (Internal ID : {{item.userid}})</td>
     <td>{{item.email}}</td>
     <td>{{item.role}}</td>
-    <td>link</td>
+    <td v-if="item.hasrequestedtoreset==1">Requested for Password Reset</td>
+    <td v-else>N/A</td>
   </tr>
 </table>
 </template>
@@ -22,7 +26,7 @@ import axios from "axios";
 
  let userlist = ref(null)
 
-axios.get("/api/getprofileinfo")
+axios.get("/api/getsessioninfo")
 .then((response) => {
   if (response.data.role != "admin"){
     window.location.href = "/error403"
